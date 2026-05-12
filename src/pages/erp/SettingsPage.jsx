@@ -5,13 +5,13 @@ import { useData } from '../../context/DataContext'
 import {
   FiSettings, FiUser, FiLock, FiBell, FiShield,
   FiSave, FiCheckCircle, FiCalendar, FiAlertTriangle, FiRefreshCw, FiPlus, FiTrash2, FiDollarSign,
-  FiImage, FiLayout, FiUsers, FiEdit2, FiX, FiInfo, FiFileText, FiGrid
+  FiImage, FiLayout, FiUsers, FiEdit2, FiX, FiInfo, FiFileText, FiGrid, FiTruck, FiMapPin
 } from 'react-icons/fi'
 
 export default function SettingsPage() {
   const { user, currentSession, updateSession, sessions, addSession, deleteSession, updateProfile } = useAuth()
   const { content, updateContent } = useCms()
-  const { globalClasses, updateGlobalClasses } = useData()
+  const { globalClasses, updateGlobalClasses, transportRoutes = [], updateTransportRoutes } = useData()
   const classes = globalClasses
 
   const [activeTab, setActiveTab] = useState('profile')
@@ -66,6 +66,12 @@ export default function SettingsPage() {
   const [examSelectedClass, setExamSelectedClass] = useState('')
   const [classSavedToast, setClassSavedToast] = useState(false)
 
+  // Transport Route Management
+  const [newRoute, setNewRoute] = useState({ route: '', stops: '', fare: '', driver: '', vehicle: '', contact: '' })
+  const [addRouteModal, setAddRouteModal] = useState(false)
+  const [editRouteIdx, setEditRouteIdx] = useState(null)
+  const [routeSavedToast, setRouteSavedToast] = useState(false)
+
   useEffect(() => {
     const savedFee = localStorage.getItem(`nms_global_fee_config_${currentSession}`) || localStorage.getItem('nms_global_fee_config')
     if (savedFee) setGlobalFeeConfig(JSON.parse(savedFee))
@@ -119,6 +125,7 @@ export default function SettingsPage() {
     ...(isAdmin ? [
       { id: 'session', label: 'Academic Session', icon: <FiCalendar /> },
       { id: 'fee-config', label: 'Fee Configuration', icon: <FiDollarSign /> },
+      { id: 'transport', label: 'Transport Routes', icon: <FiTruck /> },
       { id: 'branding', label: 'Global Branding & Media', icon: <FiImage /> },
       { id: 'classes', label: 'Classes & Sections', icon: <FiLayout /> },
       { id: 'exams', label: 'Exam Configuration', icon: <FiFileText /> }
@@ -542,6 +549,128 @@ export default function SettingsPage() {
                   )}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* ── TRANSPORT ROUTES TAB ── */}
+          {activeTab === 'transport' && isAdmin && (
+            <div style={{ padding: 'var(--space-6)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <div>
+                  <h3 style={{ fontWeight: 700, fontSize: 'var(--text-lg)', marginBottom: 6 }}>Transport Route Management</h3>
+                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
+                    Add and manage bus/van routes for the current session. Routes appear in student profiles and fee configuration.
+                  </p>
+                </div>
+                <button className="btn btn-primary" onClick={() => { setNewRoute({ route: '', stops: '', fare: '', driver: '', vehicle: '', contact: '' }); setEditRouteIdx(null); setAddRouteModal(true) }}>
+                  <FiPlus /> Add New Route
+                </button>
+              </div>
+
+              {routeSavedToast && (
+                <div style={{ background: '#dcfce7', color: '#166534', padding: '12px 16px', borderRadius: 10, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>
+                  <FiCheckCircle /> Route saved! Fee Configuration and Student profiles updated.
+                </div>
+              )}
+
+              {transportRoutes.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 60, color: 'var(--gray-400)', background: 'var(--gray-50)', borderRadius: 16 }}>
+                  <FiTruck size={48} style={{ opacity: 0.2, marginBottom: 16 }} />
+                  <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 6 }}>No Routes Configured</div>
+                  <div style={{ fontSize: 13 }}>Click "Add New Route" to create your first transport route.</div>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+                  {transportRoutes.map((r, i) => (
+                    <div key={i} style={{ background: 'var(--primary-50)', border: '1px solid var(--primary-100)', borderRadius: 14, padding: 18 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                            <FiTruck color="var(--primary-600)" />
+                            <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--primary-700)' }}>{r.route}</span>
+                          </div>
+                          {r.stops && <div style={{ fontSize: 12, color: 'var(--gray-500)' }}><FiMapPin size={11} style={{ verticalAlign: 'middle', marginRight: 4 }} />{r.stops}</div>}
+                        </div>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button className="btn btn-sm btn-secondary" style={{ padding: '4px 8px' }} onClick={() => { setNewRoute({ ...r }); setEditRouteIdx(i); setAddRouteModal(true) }}><FiEdit2 size={12} /></button>
+                          <button className="btn btn-sm btn-secondary" style={{ padding: '4px 8px', color: 'var(--error)' }} onClick={() => {
+                            if (window.confirm(`Delete route "${r.route}"?`)) {
+                              const updated = transportRoutes.filter((_, idx) => idx !== i)
+                              updateTransportRoutes(updated)
+                            }
+                          }}><FiTrash2 size={12} /></button>
+                        </div>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+                        {r.fare && <div style={{ background: 'white', padding: '6px 10px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 6 }}><FiDollarSign size={12} color="var(--accent-600)" /><span style={{ fontWeight: 600 }}>₹{r.fare}/yr</span></div>}
+                        {r.driver && <div style={{ background: 'white', padding: '6px 10px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 6 }}><FiUsers size={12} color="var(--primary-500)" />{r.driver}</div>}
+                        {r.vehicle && <div style={{ background: 'white', padding: '6px 10px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 6 }}><FiTruck size={12} color="var(--gray-500)" />{r.vehicle}</div>}
+                        {r.contact && <div style={{ background: 'white', padding: '6px 10px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 6, color: 'var(--gray-600)' }}>📞 {r.contact}</div>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add/Edit Route Modal */}
+              {addRouteModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setAddRouteModal(false)}>
+                  <div style={{ background: 'white', borderRadius: 20, padding: 32, maxWidth: 520, width: '100%' }} onClick={e => e.stopPropagation()}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                      <h3 style={{ fontWeight: 700, fontSize: 18 }}>{editRouteIdx !== null ? 'Edit Route' : 'Add New Route'}</h3>
+                      <button onClick={() => setAddRouteModal(false)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 20, color: 'var(--gray-400)' }}><FiX /></button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                        <label className="form-label">Route Name / Area *</label>
+                        <input className="form-input" placeholder="e.g. Sector 4 – Railway Station" value={newRoute.route} onChange={e => setNewRoute({ ...newRoute, route: e.target.value })} />
+                      </div>
+                      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                        <label className="form-label">Stops (comma separated)</label>
+                        <input className="form-input" placeholder="e.g. Main Gate, Chowk, Bus Stand" value={newRoute.stops} onChange={e => setNewRoute({ ...newRoute, stops: e.target.value })} />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Annual Fare (₹)</label>
+                        <input className="form-input" type="number" placeholder="e.g. 8000" value={newRoute.fare} onChange={e => setNewRoute({ ...newRoute, fare: e.target.value })} />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Driver Name</label>
+                        <input className="form-input" placeholder="e.g. Ramesh Kumar" value={newRoute.driver} onChange={e => setNewRoute({ ...newRoute, driver: e.target.value })} />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Vehicle Number</label>
+                        <input className="form-input" placeholder="e.g. UP-32-AB-1234" value={newRoute.vehicle} onChange={e => setNewRoute({ ...newRoute, vehicle: e.target.value })} />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Driver Contact</label>
+                        <input className="form-input" placeholder="e.g. 9876543210" value={newRoute.contact} onChange={e => setNewRoute({ ...newRoute, contact: e.target.value })} />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                      <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => {
+                        if (!newRoute.route.trim()) return alert('Route name is required')
+                        let updated
+                        if (editRouteIdx !== null) {
+                          updated = transportRoutes.map((r, i) => i === editRouteIdx ? { ...newRoute } : r)
+                        } else {
+                          const exists = transportRoutes.some(r => r.route.toLowerCase() === newRoute.route.trim().toLowerCase())
+                          if (exists) return alert(`Route "${newRoute.route}" already exists!`)
+                          updated = [...transportRoutes, { ...newRoute, route: newRoute.route.trim() }]
+                        }
+                        updateTransportRoutes(updated)
+                        setAddRouteModal(false)
+                        setRouteSavedToast(true)
+                        setTimeout(() => setRouteSavedToast(false), 3000)
+                      }}>
+                        <FiSave /> {editRouteIdx !== null ? 'Update Route' : 'Save Route'}
+                      </button>
+                      <button className="btn btn-secondary" onClick={() => setAddRouteModal(false)}>Cancel</button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

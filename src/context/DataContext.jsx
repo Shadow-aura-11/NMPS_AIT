@@ -197,6 +197,9 @@ export function DataProvider({ children }) {
       if (e.key === `nms_classes_${currentSession}` || e.key === 'nms_classes') {
         setGlobalClasses(JSON.parse(e.newValue || '[]'))
       }
+      if (e.key === `nms_transport_${currentSession}`) {
+        setTransportRoutes(JSON.parse(e.newValue || '[]'))
+      }
       
       // Always trigger a refresh tick on any nms_ storage change to recalculate dynamic stats
       setRefreshTick(t => t + 1)
@@ -272,6 +275,12 @@ export function DataProvider({ children }) {
     localStorage.setItem('nms_classes', JSON.stringify(newData))
   }, [currentSession])
 
+  const updateTransportRoutes = useCallback((d) => {
+    setTransportRoutes(d)
+    localStorage.setItem(`nms_transport_${currentSession}`, JSON.stringify(d))
+    localStorage.setItem('nms_transport', JSON.stringify(d))
+  }, [currentSession])
+
   const value = {
     students, updateStudents,
     staff, updateStaff,
@@ -285,7 +294,7 @@ export function DataProvider({ children }) {
     generalExpenses, updateExpenses,
     fleetLogs, updateFleetLogs,
     vehicles, updateVehicles,
-    transportRoutes, updateTransportRoutes: (d) => { localStorage.setItem(`nms_transport_${currentSession}`, JSON.stringify(d)); setTransportRoutes(d) },
+    transportRoutes, updateTransportRoutes,
     refreshData
   }
 
