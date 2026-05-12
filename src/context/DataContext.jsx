@@ -62,6 +62,24 @@ export function DataProvider({ children }) {
   const [vehicles, setVehicles] = useState([])
   const [refreshTick, setRefreshTick] = useState(0)
 
+  const [globalClasses, setGlobalClasses] = useState(() => {
+    return JSON.parse(localStorage.getItem(`nms_classes_${currentSession}`) || localStorage.getItem('nms_classes') || JSON.stringify([
+      { class: 'PG', sections: [{ name: 'A', teacher: '' }] },
+      { class: 'LKG', sections: [{ name: 'A', teacher: '' }] },
+      { class: 'UKG', sections: [{ name: 'A', teacher: '' }] },
+      { class: '1st', sections: [{ name: 'A', teacher: '' }, { name: 'B', teacher: '' }] },
+      { class: '2nd', sections: [{ name: 'A', teacher: '' }] },
+      { class: '3rd', sections: [{ name: 'A', teacher: '' }] },
+      { class: '4th', sections: [{ name: 'A', teacher: '' }] },
+      { class: '5th', sections: [{ name: 'A', teacher: '' }] },
+      { class: '6th', sections: [{ name: 'A', teacher: '' }] },
+      { class: '7th', sections: [{ name: 'A', teacher: '' }] },
+      { class: '8th', sections: [{ name: 'A', teacher: '' }] },
+      { class: '9th', sections: [{ name: 'A', teacher: '' }] },
+      { class: '10th', sections: [{ name: 'A', teacher: '' }, { name: 'B', teacher: '' }] }
+    ]))
+  })
+
   // Load data when session changes
   useEffect(() => {
     const store = getSessionStore(currentSession)
@@ -95,6 +113,9 @@ export function DataProvider({ children }) {
     setGeneralExpenses(JSON.parse(localStorage.getItem(`nms_expenses_${currentSession}`) || localStorage.getItem('nms_expenses') || '[]'))
     setFleetLogs(JSON.parse(localStorage.getItem(`nms_fleet_logs_${currentSession}`) || localStorage.getItem('nms_fleet_logs') || '[]'))
     setVehicles(JSON.parse(localStorage.getItem('nms_vehicles') || JSON.stringify(INITIAL_MOCK_VEHICLES)))
+
+    const cSaved = localStorage.getItem(`nms_classes_${currentSession}`) || localStorage.getItem('nms_classes')
+    if (cSaved) setGlobalClasses(JSON.parse(cSaved))
   }, [currentSession])
 
   // 1.5. Dynamic Fee Statistics Calculation
@@ -153,6 +174,9 @@ export function DataProvider({ children }) {
     setGeneralExpenses(JSON.parse(localStorage.getItem(`nms_expenses_${currentSession}`) || localStorage.getItem('nms_expenses') || '[]'))
     setFleetLogs(JSON.parse(localStorage.getItem(`nms_fleet_logs_${currentSession}`) || localStorage.getItem('nms_fleet_logs') || '[]'))
     
+    const cSaved = localStorage.getItem(`nms_classes_${currentSession}`) || localStorage.getItem('nms_classes')
+    if (cSaved) setGlobalClasses(JSON.parse(cSaved))
+
     setRefreshTick(t => t + 1)
   }, [currentSession])
 
@@ -169,6 +193,9 @@ export function DataProvider({ children }) {
         setMarks(val.results || {})
         setHomework(val.homework || [])
         setNotices(val.notices || [])
+      }
+      if (e.key === `nms_classes_${currentSession}` || e.key === 'nms_classes') {
+        setGlobalClasses(JSON.parse(e.newValue || '[]'))
       }
       
       // Always trigger a refresh tick on any nms_ storage change to recalculate dynamic stats
@@ -239,9 +266,16 @@ export function DataProvider({ children }) {
     localStorage.setItem('nms_vehicles', JSON.stringify(newData))
   }, [])
 
+  const updateGlobalClasses = useCallback((newData) => {
+    setGlobalClasses(newData)
+    localStorage.setItem(`nms_classes_${currentSession}`, JSON.stringify(newData))
+    localStorage.setItem('nms_classes', JSON.stringify(newData))
+  }, [currentSession])
+
   const value = {
     students, updateStudents,
     staff, updateStaff,
+    globalClasses, updateGlobalClasses,
     attendance, updateAttendance,
     marks, updateMarks,
     homework, updateHomework,

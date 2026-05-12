@@ -9,7 +9,7 @@ import { FiAward, FiCheckCircle, FiEdit3, FiSave, FiX, FiFilter, FiTrendingUp, F
 export default function ExamsPage() {
   const { user, currentSession } = useAuth()
   const navigate = useNavigate()
-  const { marks: marksData, updateMarks, students = [] } = useData() || {}
+  const { marks: marksData, updateMarks, students = [], globalClasses: contextClasses = [] } = useData() || {}
   const isAdmin = user?.role === 'admin'
   const isTeacher = user?.role === 'teacher'
   const isStudent = user?.role === 'student'
@@ -41,12 +41,11 @@ export default function ExamsPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [editBuffer, setEditBuffer] = useState({}) // studentId -> subject -> mark
 
-  // Derived Data
-  const globalClasses = useMemo(() => {
-    return JSON.parse(localStorage.getItem(`nms_classes_${currentSession}`) || localStorage.getItem('nms_classes') || '[]')
-  }, [currentSession])
+  // Use DataContext classes (real-time) with localStorage as fallback
+  const globalClasses = contextClasses.length > 0 ? contextClasses
+    : JSON.parse(localStorage.getItem(`nms_classes_${currentSession}`) || localStorage.getItem('nms_classes') || '[]')
 
-  const classes = globalClasses.length > 0 ? globalClasses.map(c => c.class) : ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
+  const classes = globalClasses.length > 0 ? globalClasses.map(c => c.class) : ['PG', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
   const selectedClassObj = globalClasses.find(c => c.class === selectedClass)
   const sections = ['-', ...(selectedClassObj ? selectedClassObj.sections.map(s => s.name) : ['A', 'B', 'C', 'D'])]
   const subjects = selectedClassObj?.subjects || ['English', 'Hindi', 'Mathematics', 'Science', 'Social Sc.']

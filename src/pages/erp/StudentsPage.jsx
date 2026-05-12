@@ -13,7 +13,8 @@ export default function StudentsPage() {
   const isAdmin = user?.role === 'admin'
   const isTeacher = user?.role === 'teacher'
   
-  const { students = [], updateStudents, refreshData } = useData() || {}
+  const { students = [], updateStudents, refreshData, globalClasses = [] } = useData() || {}
+  const classList = globalClasses.map(c => c.class)
 
   const syncStudents = () => {
     if (!window.confirm(`Standardize student metadata for the CURRENT session (${currentSession})?`)) return
@@ -269,7 +270,7 @@ export default function StudentsPage() {
         </div>
         <select className="form-select" style={{ width: 150 }} value={filterClass} onChange={e => setFilterClass(e.target.value)}>
           <option value="">All Classes</option>
-          {['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'].map(c => <option key={c} value={c}>Class {c}</option>)}
+          {classList.map(c => <option key={c} value={c}>Class {c}</option>)}
         </select>
       </div>
 
@@ -502,8 +503,9 @@ export default function StudentsPage() {
                     <div className="form-grid">
                       <div className="form-group"><label>Full Name *</label><input className="form-input" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} /></div>
                       <div className="form-group"><label>Class *</label>
-                        <select className="form-select" value={formData.class} onChange={e => setFormData({...formData, class: e.target.value})}>
-                          {['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'].map(c => <option key={c} value={c}>{c}</option>)}
+                        <select className="form-select" required value={formData.class} onChange={e => setFormData({ ...formData, class: e.target.value })}>
+                          <option value="">Select</option>
+                          {classList.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
                       </div>
                       <div className="form-group"><label>Section</label>
@@ -839,8 +841,7 @@ export default function StudentsPage() {
               <label className="form-label">Promote to Class (Next Stage)</label>
               <select className="form-select" value={targetClass} onChange={e => setTargetClass(e.target.value)}>
                 <option value="">Auto (Next Class)</option>
-                <option value="UKG">UKG</option>
-                {['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'].map(c => <option key={c} value={c}>Class {c}</option>)}
+                {classList.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
 
@@ -852,7 +853,7 @@ export default function StudentsPage() {
 
             <button className="btn btn-primary w-full" onClick={() => {
               if (!targetSession) return alert('Please select target session')
-              const nextClassMap = { 'UKG': '1st', '1st': '2nd', '2nd': '3rd', '3rd': '4th', '4th': '5th', '5th': '6th', '6th': '7th', '7th': '8th', '8th': '9th', '9th': '10th', '10th': 'ALUMNI' }
+              const nextClassMap = Object.fromEntries(classList.map((c, i) => [c, classList[i + 1] || 'ALUMNI']))
               const currentFees = JSON.parse(localStorage.getItem(feeKey(currentSession)) || '{}')
               const nextFees = JSON.parse(localStorage.getItem(feeKey(targetSession)) || '{}')
               

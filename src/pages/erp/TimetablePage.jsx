@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth, MOCK_DATA, getSessionStore, saveSessionStore } from '../../context/AuthContext'
+import { useData } from '../../context/DataContext'
 import { FiCalendar, FiEdit3, FiSave, FiX, FiPlus, FiFilter, FiDownload, FiInfo } from 'react-icons/fi'
 
 const subColors = { 
@@ -13,6 +14,8 @@ const subjects = ['Physics', 'Chemistry', 'Mathematics', 'Biology', 'English', '
 
 export default function TimetablePage() {
   const { user, currentSession } = useAuth()
+  const { globalClasses = [] } = useData() || {}
+  const classList = globalClasses.map(c => c.class)
   const isAdmin = user?.role === 'admin'
   const isTeacher = user?.role === 'teacher'
   const canEdit = isAdmin || isTeacher
@@ -106,7 +109,7 @@ export default function TimetablePage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 13, color: 'var(--gray-600)' }}>Class:</span>
             <select className="form-select" style={{ width: 100 }} value={selectedClass} onChange={e => { setSelectedClass(e.target.value); setIsEditing(false); }}>
-              {['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'].map(cls => <option key={cls} value={cls}>{cls}</option>)}
+              {classList.map(cls => <option key={cls} value={cls}>{cls}</option>)}
             </select>
           </div>
 

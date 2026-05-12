@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useCms } from '../../context/CmsContext'
+import { useData } from '../../context/DataContext'
 import {
   FiSettings, FiUser, FiLock, FiBell, FiShield,
   FiSave, FiCheckCircle, FiCalendar, FiAlertTriangle, FiRefreshCw, FiPlus, FiTrash2, FiDollarSign,
@@ -10,6 +11,8 @@ import {
 export default function SettingsPage() {
   const { user, currentSession, updateSession, sessions, addSession, deleteSession, updateProfile } = useAuth()
   const { content, updateContent } = useCms()
+  const { globalClasses, updateGlobalClasses } = useData()
+  const classes = globalClasses
 
   const [activeTab, setActiveTab] = useState('profile')
   const [saved, setSaved] = useState(false)
@@ -52,7 +55,6 @@ export default function SettingsPage() {
   })
 
   // Classes & Sections Config
-  const [classes, setClasses] = useState([])
   const [addClassModal, setAddClassModal] = useState(false)
   const [newClass, setNewClass] = useState({ name: '', sections: [{ name: 'A', teacher: '' }], subjects: [] })
   const [newSubjectInput, setNewSubjectInput] = useState({})
@@ -67,33 +69,14 @@ export default function SettingsPage() {
     const savedFee = localStorage.getItem(`nms_global_fee_config_${currentSession}`) || localStorage.getItem('nms_global_fee_config')
     if (savedFee) setGlobalFeeConfig(JSON.parse(savedFee))
 
-    const savedClasses = localStorage.getItem(`nms_classes_${currentSession}`) || localStorage.getItem('nms_classes')
-    const parsedClasses = savedClasses ? JSON.parse(savedClasses) : [
-      { class: 'UKG', sections: [{ name: 'A', teacher: '' }] },
-      { class: '1st', sections: [{ name: 'A', teacher: '' }] },
-      { class: '2nd', sections: [{ name: 'A', teacher: '' }] },
-      { class: '3rd', sections: [{ name: 'A', teacher: '' }] },
-      { class: '4th', sections: [{ name: 'A', teacher: '' }] },
-      { class: '5th', sections: [{ name: 'A', teacher: '' }] },
-      { class: '6th', sections: [{ name: 'A', teacher: '' }] },
-      { class: '7th', sections: [{ name: 'A', teacher: '' }] },
-      { class: '8th', sections: [{ name: 'A', teacher: '' }] },
-      { class: '9th', sections: [{ name: 'A', teacher: '' }] },
-      { class: '10th', sections: [{ name: 'A', teacher: '' }] }
-    ]
-    setClasses(parsedClasses.map(c => ({
-      ...c,
-      subjects: c.subjects || ['English', 'Hindi', 'Mathematics', 'Science', 'Social Sc.']
-    })))
-
     const savedExamTypes = localStorage.getItem(`nms_exam_types_${currentSession}`)
     setExamTypes(savedExamTypes ? JSON.parse(savedExamTypes) : ['FA1', 'FA2', 'SA1', 'FA3', 'FA4', 'SA2'])
     
     const savedExamConfig = localStorage.getItem(`nms_exam_config_${currentSession}`)
     setExamConfig(savedExamConfig ? JSON.parse(savedExamConfig) : {})
 
-    if (parsedClasses.length > 0) setExamSelectedClass(parsedClasses[0].class)
-  }, [currentSession])
+    if (globalClasses.length > 0 && !examSelectedClass) setExamSelectedClass(globalClasses[0].class)
+  }, [currentSession, globalClasses])
 
   const isAdmin = user?.role === 'admin'
 
@@ -190,8 +173,7 @@ export default function SettingsPage() {
 
   const handleClassSave = () => {
     const updated = [...classes, { class: newClass.name, sections: newClass.sections, subjects: ['English', 'Hindi', 'Mathematics', 'Science', 'Social Sc.'] }]
-    setClasses(updated)
-    localStorage.setItem(`nms_classes_${currentSession}`, JSON.stringify(updated))
+    updateGlobalClasses(updated)
     setAddClassModal(false)
     setNewClass({ name: '', sections: [{ name: 'A', teacher: '' }], subjects: [] })
   }
@@ -199,8 +181,7 @@ export default function SettingsPage() {
   const deleteClass = (idx) => {
     if (window.confirm('Are you sure you want to delete this class?')) {
       const updated = classes.filter((_, i) => i !== idx)
-      setClasses(updated)
-      localStorage.setItem(`nms_classes_${currentSession}`, JSON.stringify(updated))
+      updateGlobalClasses(updated)
     }
   }
 
@@ -210,8 +191,7 @@ export default function SettingsPage() {
     const updated = [...classes]
     if (!updated[classIdx].subjects.includes(subject)) {
       updated[classIdx].subjects.push(subject)
-      setClasses(updated)
-      localStorage.setItem(`nms_classes_${currentSession}`, JSON.stringify(updated))
+      updateGlobalClasses(updated)
     }
     setNewSubjectInput({ ...newSubjectInput, [classIdx]: '' })
   }
@@ -219,8 +199,7 @@ export default function SettingsPage() {
   const removeSubjectFromClass = (classIdx, subjectIdx) => {
     const updated = [...classes]
     updated[classIdx].subjects.splice(subjectIdx, 1)
-    setClasses(updated)
-    localStorage.setItem(`nms_classes_${currentSession}`, JSON.stringify(updated))
+    updateGlobalClasses(updated)
   }
   const syncTransport = () => {
     if (!window.confirm(`Sync transport assignments for the CURRENT session (${currentSession})?`)) return

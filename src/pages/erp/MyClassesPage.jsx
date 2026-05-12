@@ -8,14 +8,13 @@ export default function MyClassesPage() {
   const { user } = useAuth()
   
   // Allow selecting from all classes as requested
-  const allAvailableClasses = ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
+  const { students, updateStudents, globalClasses = [] } = useData()
+  const allAvailableClasses = globalClasses.map(c => c.class)
   
   const [selectedClassRaw, setSelectedClassRaw] = useState('10th-A')
   const [searchTerm, setSearchTerm] = useState('')
   const [editModal, setEditModal] = useState(false)
   const [selectedStudent, setSelectedStudent] = useState(null)
-
-  const { students, updateStudents } = useData()
 
   // Split Class and Section from the raw string (e.g. "X-A" -> class: "X", section: "A")
   const [currentClass, currentSection] = selectedClassRaw.split('-')

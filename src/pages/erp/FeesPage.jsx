@@ -7,7 +7,8 @@ import { generatePDF } from '../../utils/pdfUtils'
 
 export default function FeesPage() {
   const { user, currentSession, sessions } = useAuth()
-  const { students, refreshData } = useData()
+  const { students, refreshData, globalClasses = [] } = useData()
+  const classList = globalClasses.map(c => c.class)
 
   const syncFees = () => {
     if (!window.confirm(`Recalculate all fee balances for the CURRENT session (${currentSession})? This will fix any balance discrepancies across all students.`)) return
@@ -297,7 +298,7 @@ export default function FeesPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <select className="form-select form-select-sm" value={filterClass} onChange={e => setFilterClass(e.target.value)}>
                   <option value="">All Classes</option>
-                  {['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'].map(c => <option key={c} value={c}>{c}</option>)}
+                  {classList.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
                 <select className="form-select form-select-sm" value={filterTransport} onChange={e => setFilterTransport(e.target.value)}>
                   <option value="">All Routes</option>
