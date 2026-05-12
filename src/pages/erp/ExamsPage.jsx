@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth, MOCK_DATA } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import { exportToCSV } from '../../utils/exportUtils'
@@ -7,6 +8,7 @@ import { FiAward, FiCheckCircle, FiEdit3, FiSave, FiX, FiFilter, FiTrendingUp, F
 
 export default function ExamsPage() {
   const { user, currentSession } = useAuth()
+  const navigate = useNavigate()
   const { marks: marksData, updateMarks, students = [] } = useData() || {}
   const isAdmin = user?.role === 'admin'
   const isTeacher = user?.role === 'teacher'
@@ -137,7 +139,7 @@ export default function ExamsPage() {
                 <FiDownload /> Export Marks
               </button>
               {isAdmin && (
-                <button className="btn btn-secondary btn-sm" onClick={() => window.location.href='/erp/certificate-design'}>
+                <button className="btn btn-secondary btn-sm" onClick={() => navigate('/erp/certificate-design')}>
                   <FiLayout /> Design Certificate
                 </button>
               )}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import { exportToCSV } from '../../utils/exportUtils'
@@ -6,6 +7,7 @@ import { FiUser, FiSearch, FiPlus, FiEdit2, FiTrash2, FiX, FiSave, FiPhone, FiMa
 
 export default function StaffPage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const { staff, updateStaff } = useData()
   const [search, setSearch] = useState('')
   const [modal, setModal] = useState(null)
@@ -140,7 +142,7 @@ export default function StaffPage() {
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           {user?.role==='admin' && <button className="btn btn-secondary" onClick={handleExport}><FiDownload /> Export CSV</button>}
-          {user?.role==='admin' && <button className="btn btn-secondary" onClick={() => window.location.href='/erp/id-card-design'}><FiShield /> Design ID Cards</button>}
+          {user?.role==='admin' && <button className="btn btn-secondary" onClick={() => navigate('/erp/id-card-design')}><FiShield /> Design ID Cards</button>}
           {user?.role==='admin' && <button className="btn btn-primary" onClick={openAdd}><FiPlus/> Add Staff</button>}
         </div>
       </div>
