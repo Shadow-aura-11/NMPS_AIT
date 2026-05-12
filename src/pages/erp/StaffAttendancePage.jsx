@@ -102,29 +102,52 @@ export default function StaffAttendancePage() {
     const days = new Date(reportMonth.getFullYear(), reportMonth.getMonth() + 1, 0).getDate()
     const data = []
     for (let i = 1; i <= days; i++) {
-      const date = new Date(reportMonth.getFullYear(), reportMonth.getMonth(), i)
+      const date = new Date(Date.UTC(reportMonth.getFullYear(), reportMonth.getMonth(), i))
       const dateStr = date.toISOString().split('T')[0]
-      const isWeekend = date.getDay() === 0 // Sunday
+      const isWeekend = date.getUTCDay() === 0 // Sunday
       
-      // Seeded random status for the month for the specific staff
-      const seed = viewingReport.id.charCodeAt(0) + i + reportMonth.getMonth()
-      const rand = (Math.sin(seed) * 10000) % 1
-      
-      let status = 'Present'
-      if (isWeekend) status = 'Holiday'
-      else if (rand < 0.1) status = 'Absent'
-      else if (rand < 0.2) status = 'Late'
+      let realLog = null;
+      if (dateStr === selectedDate) {
+        realLog = biometricLogs[viewingReport.id];
+      } else {
+        const saved = localStorage.getItem(`nms_biometric_${dateStr}`);
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            realLog = parsed[viewingReport.id];
+          } catch (e) {}
+        }
+      }
 
-      data.push({ 
-        date: dateStr, 
-        day: i, 
-        status, 
-        checkIn: status === 'Absent' || status === 'Holiday' ? '--' : '08:15 AM',
-        checkOut: status === 'Absent' || status === 'Holiday' ? '--' : '03:30 PM'
-      })
+      if (realLog) {
+        data.push({
+          date: dateStr,
+          day: i,
+          status: realLog.status,
+          checkIn: realLog.checkIn || '--',
+          checkOut: realLog.checkOut || '--'
+        })
+      } else {
+        // Seeded random status for the month for the specific staff
+        const seed = viewingReport.id.charCodeAt(0) + i + reportMonth.getMonth()
+        const rand = (Math.sin(seed) * 10000) % 1
+        
+        let status = 'Present'
+        if (isWeekend) status = 'Holiday'
+        else if (rand < 0.1) status = 'Absent'
+        else if (rand < 0.2) status = 'Late'
+
+        data.push({ 
+          date: dateStr, 
+          day: i, 
+          status, 
+          checkIn: status === 'Absent' || status === 'Holiday' ? '--' : '08:15 AM',
+          checkOut: status === 'Absent' || status === 'Holiday' ? '--' : '03:30 PM'
+        })
+      }
     }
     return data
-  }, [viewingReport, reportMonth])
+  }, [viewingReport, reportMonth, biometricLogs, selectedDate])
 
   const monthSummary = useMemo(() => {
     const counts = { Present: 0, Absent: 0, Late: 0, Holiday: 0 }
