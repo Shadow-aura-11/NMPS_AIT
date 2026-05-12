@@ -64,6 +64,7 @@ export default function SettingsPage() {
   const [examConfig, setExamConfig] = useState({})
   const [newExamType, setNewExamType] = useState('')
   const [examSelectedClass, setExamSelectedClass] = useState('')
+  const [classSavedToast, setClassSavedToast] = useState(false)
 
   useEffect(() => {
     const savedFee = localStorage.getItem(`nms_global_fee_config_${currentSession}`) || localStorage.getItem('nms_global_fee_config')
@@ -172,10 +173,15 @@ export default function SettingsPage() {
   }
 
   const handleClassSave = () => {
-    const updated = [...classes, { class: newClass.name, sections: newClass.sections, subjects: ['English', 'Hindi', 'Mathematics', 'Science', 'Social Sc.'] }]
+    if (!newClass.name.trim()) return alert('Please enter a class name')
+    const exists = classes.some(c => c.class.trim().toLowerCase() === newClass.name.trim().toLowerCase())
+    if (exists) return alert(`Class "${newClass.name}" already exists!`)
+    const updated = [...classes, { class: newClass.name.trim(), sections: newClass.sections, subjects: ['English', 'Hindi', 'Mathematics', 'Science', 'Social Sc.'] }]
     updateGlobalClasses(updated)
     setAddClassModal(false)
     setNewClass({ name: '', sections: [{ name: 'A', teacher: '' }], subjects: [] })
+    setClassSavedToast(true)
+    setTimeout(() => setClassSavedToast(false), 3000)
   }
 
   const deleteClass = (idx) => {
@@ -243,8 +249,8 @@ export default function SettingsPage() {
   const syncAcademic = () => {
     if (!window.confirm('Sync class configurations with current session?')) return
     const globalCls = JSON.parse(localStorage.getItem('nms_classes') || '[]')
-    localStorage.setItem(`nms_classes_${currentSession}`, JSON.stringify(globalCls))
-    alert('Academic classes synchronized!'); window.location.reload()
+    updateGlobalClasses(globalCls)
+    alert('Academic classes synchronized across all pages!')
   }
 
   const syncSessions = () => {
@@ -606,6 +612,12 @@ export default function SettingsPage() {
                   <FiRefreshCw /> Sync from Global
                 </button>
               </div>
+
+              {classSavedToast && (
+                <div style={{ background: '#dcfce7', color: '#166534', padding: '12px 16px', borderRadius: 10, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>
+                  <FiCheckCircle /> Class added! All ERP pages (Students, Attendance, Fees, Exams) updated instantly.
+                </div>
+              )}
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
                 {classes.map((c, i) => (
