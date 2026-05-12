@@ -44,7 +44,6 @@ export default function StudentsPage() {
   const transportRoutes = JSON.parse(localStorage.getItem(`nms_transport_${currentSession}`) || localStorage.getItem('nms_transport') || '[]')
   const globalFeeConfig = JSON.parse(localStorage.getItem('nms_global_fee_config') || '{"classFees":{},"transportFees":{}}')
   const certConfig = JSON.parse(localStorage.getItem('nms_cert_config') || '{"bgImage":null, "logoImage":null, "signImage":null, "qrImage":null, "contentMarginTop": 0, "showLogo": true, "showSign": true}')
-  const globalClasses = JSON.parse(localStorage.getItem(`nms_classes_${currentSession}`) || localStorage.getItem('nms_classes') || '[]')
 
   const getStudentSubjects = (studentClass) => {
     const cls = globalClasses.find(c => c.class === studentClass)
