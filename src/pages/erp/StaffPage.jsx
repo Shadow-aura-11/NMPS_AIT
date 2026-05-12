@@ -16,7 +16,8 @@ export default function StaffPage() {
     id:'', name:'', dept:'', designation:'Teacher', status:'Present', phone:'',
     dob: '', bloodGroup: '', address: '', aadhaarNo: '', panNo: '', joinDate: '',
     photo: null,
-    documents: []
+    documents: [],
+    loginUsername: '', loginPassword: ''
   })
 
   const [customDesignation, setCustomDesignation] = useState(false)
@@ -29,16 +30,21 @@ export default function StaffPage() {
   )
 
   const openAdd = () => { 
+    const nextId = `STF${String(staff.length+1).padStart(3,'0')}`;
     setEditData({
-      id:`STF${String(staff.length+1).padStart(3,'0')}`, name:'', dept:'', designation:'Teacher', status:'Present', phone:'',
+      id: nextId, name:'', dept:'', designation:'Teacher', status:'Present', phone:'',
       dob: '', bloodGroup: '', address: '', aadhaarNo: '', panNo: '', joinDate: new Date().toISOString().split('T')[0],
-      photo: null, documents: []
+      photo: null, documents: [],
+      loginUsername: `staff${staff.length+1}`,
+      loginPassword: Math.random().toString(36).slice(-8)
     }); 
     setCustomDesignation(false)
     setModal('add') 
   }
 
   const openEdit = s => { 
+    const dynamicUsers = JSON.parse(localStorage.getItem('nms_dynamic_users') || '[]')
+    const userCred = dynamicUsers.find(u => u.id === s.id)
     setEditData({
       ...s,
       documents: s.documents || [],
@@ -48,7 +54,9 @@ export default function StaffPage() {
       address: s.address || '',
       aadhaarNo: s.aadhaarNo || '',
       panNo: s.panNo || '',
-      joinDate: s.joinDate || ''
+      joinDate: s.joinDate || '',
+      loginUsername: userCred ? userCred.username : '',
+      loginPassword: userCred ? userCred.password : ''
     }); 
     setCustomDesignation(false)
     setModal('edit') 
@@ -56,8 +64,28 @@ export default function StaffPage() {
 
   const handleSave = () => {
     if(!editData.name.trim()) return
-    const updated = modal === 'add' ? [...staff, editData] : staff.map(s => s.id === editData.id ? editData : s)
+    const { loginUsername, loginPassword, ...staffData } = editData;
+    const dynamicUsers = JSON.parse(localStorage.getItem('nms_dynamic_users') || '[]')
+    
+    const updated = modal === 'add' ? [...staff, staffData] : staff.map(s => s.id === staffData.id ? staffData : s)
     updateStaff(updated)
+    
+    const userIndex = dynamicUsers.findIndex(u => u.id === staffData.id)
+    if (userIndex >= 0) {
+      dynamicUsers[userIndex].username = loginUsername
+      dynamicUsers[userIndex].password = loginPassword
+    } else {
+      dynamicUsers.push({
+        id: staffData.id,
+        username: loginUsername,
+        password: loginPassword,
+        role: staffData.designation === 'Teacher' ? 'teacher' : 'staff',
+        name: staffData.name,
+        avatar: staffData.name[0]
+      })
+    }
+    localStorage.setItem('nms_dynamic_users', JSON.stringify(dynamicUsers))
+
     setModal(null)
   }
 
@@ -254,6 +282,14 @@ export default function StaffPage() {
               </div>
             </div>
 
+            {/* Portal Credentials */}
+            <h4 style={{fontSize:13, fontWeight:800, color:'var(--primary-700)', marginBottom:10}}>Portal Login Credentials</h4>
+            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom: 25, padding: 15, background: 'var(--primary-50)', borderRadius: 12, border: '1px solid var(--primary-100)'}}>
+              <div className="form-group"><label className="form-label">Login Username *</label><input className="form-input" value={editData.loginUsername} onChange={e=>setEditData({...editData,loginUsername:e.target.value})} placeholder="Username"/></div>
+              <div className="form-group"><label className="form-label">Login Password *</label><input className="form-input" value={editData.loginPassword} onChange={e=>setEditData({...editData,loginPassword:e.target.value})} placeholder="Password"/></div>
+            </div>
+
+            <h4 style={{fontSize:13, fontWeight:800, color:'var(--gray-700)', marginBottom:10}}>Personal Information</h4>
             <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:16}}>
               <div className="form-group"><label className="form-label">Aadhaar Number</label><input className="form-input" value={editData.aadhaarNo} onChange={e=>setEditData({...editData,aadhaarNo:e.target.value})}/></div>
               <div className="form-group"><label className="form-label">PAN Number</label><input className="form-input" value={editData.panNo} onChange={e=>setEditData({...editData,panNo:e.target.value})}/></div>

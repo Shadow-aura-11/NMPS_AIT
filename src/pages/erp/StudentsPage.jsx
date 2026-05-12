@@ -79,7 +79,8 @@ export default function StudentsPage() {
     // Personal Details
     birthMark: '',
     // Documents
-    documents: [] // Array of { name: '', file: base64 }
+    documents: [], // Array of { name: '', file: base64 }
+    loginUsername: '', loginPassword: ''
   }
 
   const [formData, setFormData] = useState(initialFormData)
@@ -98,26 +99,41 @@ export default function StudentsPage() {
   const handleSave = (e) => {
     e.preventDefault()
     const finalData = { ...formData, phone: formData.phone || formData.fatherPhone }
+    const { loginUsername, loginPassword, ...studentData } = finalData;
     
+    const dynamicUsers = JSON.parse(localStorage.getItem('nms_dynamic_users') || '[]')
+
     if (selectedStudent) {
-      const updated = students.map(s => s.id === selectedStudent.id ? { ...s, ...finalData } : s)
+      const updated = students.map(s => s.id === selectedStudent.id ? { ...s, ...studentData } : s)
       updateStudents(updated)
+
+      const userIndex = dynamicUsers.findIndex(u => u.id === selectedStudent.id)
+      if (userIndex >= 0) {
+        dynamicUsers[userIndex].username = loginUsername
+        dynamicUsers[userIndex].password = loginPassword
+      } else {
+        dynamicUsers.push({
+          id: selectedStudent.id,
+          username: loginUsername,
+          password: loginPassword,
+          role: 'student',
+          name: formData.name,
+          class: formData.class,
+          avatar: formData.name[0]
+        })
+      }
+      localStorage.setItem('nms_dynamic_users', JSON.stringify(dynamicUsers))
     } else {
       const nextIdNum = parseInt(localStorage.getItem('nms_stu_id_counter') || '0') + 1
       const newId = `STU${String(nextIdNum).padStart(3, '0')}`
       localStorage.setItem('nms_stu_id_counter', nextIdNum.toString())
       
-      const newStudent = { ...finalData, id: newId, admissionNo: newId, attendance: 100 }
+      const newStudent = { ...studentData, id: newId, admissionNo: newId, attendance: 100 }
       
-      // Auto-generate Login Credentials
-      const username = (formData.name.split(' ')[0] + newId).toLowerCase()
-      const password = Math.random().toString(36).slice(-8)
-      
-      const dynamicUsers = JSON.parse(localStorage.getItem('nms_dynamic_users') || '[]')
       dynamicUsers.push({
         id: newId,
-        username,
-        password,
+        username: loginUsername,
+        password: loginPassword,
         role: 'student',
         name: formData.name,
         class: formData.class,
@@ -128,10 +144,7 @@ export default function StudentsPage() {
       updateStudents([...students, newStudent])
       refreshData()
 
-      // Simulate SMS Notification
-
-      // Simulate SMS Notification
-      alert(`🎉 Registration Successful!\n\nCredentials sent to ${formData.phone}:\nUsername: ${username}\nPassword: ${password}\nWebsite: https://newmorningstar.edu.in/erp`)
+      alert(`🎉 Registration Successful!\n\nCredentials sent to ${formData.phone}:\nUsername: ${loginUsername}\nPassword: ${loginPassword}\nWebsite: https://newmorningstar.edu.in/erp`)
     }
     setModalOpen(false)
   }
@@ -168,7 +181,14 @@ export default function StudentsPage() {
 
   const openEdit = (s) => {
     setSelectedStudent(s)
-    setFormData({ ...initialFormData, ...s })
+    const dynamicUsers = JSON.parse(localStorage.getItem('nms_dynamic_users') || '[]')
+    const userCred = dynamicUsers.find(u => u.id === s.id)
+    setFormData({ 
+      ...initialFormData, 
+      ...s,
+      loginUsername: userCred ? userCred.username : '',
+      loginPassword: userCred ? userCred.password : ''
+    })
     setModalOpen(true)
   }
 
@@ -176,7 +196,13 @@ export default function StudentsPage() {
     setSelectedStudent(null)
     const nextIdNum = parseInt(localStorage.getItem('nms_stu_id_counter') || '0') + 1
     const nextId = `STU${String(nextIdNum).padStart(3, '0')}`
-    setFormData({ ...initialFormData, admissionNo: nextId, admissionDate: new Date().toISOString().split('T')[0] })
+    setFormData({ 
+      ...initialFormData, 
+      admissionNo: nextId, 
+      admissionDate: new Date().toISOString().split('T')[0],
+      loginUsername: `stu${nextIdNum}`,
+      loginPassword: Math.random().toString(36).slice(-8)
+    })
     setModalOpen(true)
   }
 
@@ -487,6 +513,21 @@ export default function StudentsPage() {
                       <div className="form-group"><label>Student ID {selectedStudent ? '' : '(Auto)'}</label><input className="form-input" value={formData.admissionNo} readOnly={!selectedStudent} style={selectedStudent ? {} : { background: 'var(--gray-50)', cursor: 'not-allowed' }} /></div>
                       <div className="form-group"><label>Roll No</label><input className="form-input" value={formData.rollNo} onChange={e => setFormData({...formData, rollNo: e.target.value})} /></div>
                       <div className="form-group"><label>Adm. Date</label><input type="date" className="form-input" value={formData.admissionDate} onChange={e => setFormData({...formData, admissionDate: e.target.value})} /></div>
+                    </div>
+                  </div>
+
+                  {/* Part 1b: Portal Login Credentials */}
+                  <div className="form-row-group">
+                    <h5 className="form-sub-title">Portal Login Credentials</h5>
+                    <div className="form-grid">
+                      <div className="form-group">
+                        <label>Login Username *</label>
+                        <input className="form-input" required value={formData.loginUsername} onChange={e => setFormData({...formData, loginUsername: e.target.value})} />
+                      </div>
+                      <div className="form-group">
+                        <label>Login Password *</label>
+                        <input className="form-input" required value={formData.loginPassword} onChange={e => setFormData({...formData, loginPassword: e.target.value})} />
+                      </div>
                     </div>
                   </div>
 
