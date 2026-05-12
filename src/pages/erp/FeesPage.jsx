@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useAuth, MOCK_DATA, feeKey, getPreviousSessionsDue } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import { FiDollarSign, FiSearch, FiCheckCircle, FiClock, FiAlertCircle, FiPlus, FiPrinter, FiX, FiTag, FiAlertTriangle, FiDownload, FiRefreshCw, FiTruck, FiTrash2 } from 'react-icons/fi'
@@ -43,6 +43,17 @@ export default function FeesPage() {
     localStorage.setItem(feeKey(currentSession), JSON.stringify(seed))
     return seed
   })
+
+  // Sync fee updates across tabs
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === feeKey(currentSession)) {
+        setFeeRecords(e.newValue ? JSON.parse(e.newValue) : {})
+      }
+    }
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [currentSession])
 
   // Reload fees when session changes
   const getRecordsForSession = (session) => {

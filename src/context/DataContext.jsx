@@ -87,7 +87,6 @@ export function DataProvider({ children }) {
     // Load transport routes for session
     const savedRoutes = localStorage.getItem(`nms_transport_${currentSession}`)
     setTransportRoutes(savedRoutes ? JSON.parse(savedRoutes) : (currentSession.includes('2026') ? INITIAL_MOCK_TRANSPORT : []))
-    setFeeStats(store.feeStats || { collected: 0, pending: 0, overdue: 0, total: 2500000 })
     
     const hSaved = localStorage.getItem('nms_holidays')
     if (hSaved) setHolidays(JSON.parse(hSaved))
@@ -144,7 +143,6 @@ export function DataProvider({ children }) {
     setMarks(store.results || {})
     setHomework(store.homework || [])
     setNotices(store.notices || [])
-    setFeeStats(store.feeStats || { collected: 0, pending: 0, overdue: 0, total: 2500000 })
     
     const hSaved = localStorage.getItem('nms_holidays')
     if (hSaved) setHolidays(JSON.parse(hSaved))
@@ -161,16 +159,20 @@ export function DataProvider({ children }) {
   // 2. Storage Sync (Cross-Tab Support)
   useEffect(() => {
     const handleStorageChange = (e) => {
-      if (e.key === `nms_students_${currentSession}`) setStudents(JSON.parse(e.newValue))
-      if (e.key === 'nms_staff') setStaff(JSON.parse(e.newValue))
+      if (!e.key || !e.key.startsWith('nms_')) return;
+      
+      if (e.key === `nms_students_${currentSession}`) setStudents(JSON.parse(e.newValue || '[]'))
+      if (e.key === 'nms_staff') setStaff(JSON.parse(e.newValue || '[]'))
       if (e.key === dataKey(currentSession)) {
-        const val = JSON.parse(e.newValue)
+        const val = JSON.parse(e.newValue || '{}')
         setAttendance(val.attendance || [])
         setMarks(val.results || {})
         setHomework(val.homework || [])
         setNotices(val.notices || [])
-        setFeeStats(val.feeStats || { collected: 0, pending: 0, overdue: 0, total: 2500000 })
       }
+      
+      // Always trigger a refresh tick on any nms_ storage change to recalculate dynamic stats
+      setRefreshTick(t => t + 1)
     }
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
