@@ -15,7 +15,12 @@ export default function CertificateDesigner() {
       showPhoto: true,
       showSign: true,
       watermark: 'OFFICIAL',
-      theme: 'classic' // classic, modern, elegant
+      theme: 'classic', // classic, modern, elegant
+      bgImage: null,
+      logoImage: null,
+      signImage: null,
+      qrImage: null,
+      contentMarginTop: 0
     }
   })
 
@@ -98,13 +103,25 @@ export default function CertificateDesigner() {
             <label className="form-label">Watermark Text</label>
             <input className="form-input" value={config.watermark} onChange={e => setConfig({...config, watermark: e.target.value})} placeholder="e.g. OFFICIAL" />
           </div>
+
+          <div style={{ borderTop: '1px solid var(--gray-200)', margin: '25px 0' }} />
+          <h4 style={{ fontSize: 13, fontWeight: 700, color: 'var(--gray-500)', textTransform: 'uppercase', marginBottom: 20 }}>Custom Branding & Overlays</h4>
+          
+          <div style={{ padding: 15, background: 'var(--primary-50)', borderRadius: 8, border: '1px solid var(--primary-100)' }}>
+            <p style={{ fontSize: 13, color: 'var(--primary-700)', marginBottom: 10 }}>
+              Background templates, logos, and signatures are now managed globally.
+            </p>
+            <a href="/erp/settings" style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <FiLayout /> Go to Global Branding Settings
+            </a>
+          </div>
         </div>
 
         {/* Live Preview */}
         <div className="dash-widget" style={{ background: 'var(--gray-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40, overflowY: 'auto' }}>
           <div id="cert-preview" style={{
-            width: '100%', maxWidth: 700, minHeight: 900, background: 'white', position: 'relative',
-            border: `15px solid ${config.borderColor}`, padding: 40, boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+            width: '100%', maxWidth: 700, minHeight: 900, background: config.bgImage ? `url(${config.bgImage}) no-repeat center/100% 100%` : 'white', position: 'relative',
+            border: config.bgImage ? 'none' : `15px solid ${config.borderColor}`, padding: 40, boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
             borderRadius: config.theme === 'modern' ? '0' : 'var(--radius-xl)'
           }}>
             {/* Watermark */}
@@ -115,19 +132,29 @@ export default function CertificateDesigner() {
               {config.watermark}
             </div>
 
-            {/* Header */}
-            <div style={{ textAlign: 'center', marginBottom: 40 }}>
-              {config.showLogo && <div style={{ width: 80, height: 80, background: config.headerColor, borderRadius: '50%', margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}><FiAward size={40}/></div>}
-              <h1 style={{ fontSize: 28, fontWeight: 900, color: config.headerColor, textTransform: 'uppercase' }}>{config.schoolName}</h1>
-              <p style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 5 }}>{config.address}</p>
-            </div>
-
-            <div style={{ borderBottom: `2px solid ${config.borderColor}`, margin: '20px 0' }} />
-            
-            <div style={{ textAlign: 'center', marginBottom: 30 }}>
-              <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: 2, color: 'var(--gray-800)' }}>ACADEMIC REPORT CARD</h2>
-              <p style={{ fontSize: 14, color: 'var(--gray-500)' }}>Annual Session 2026 - 2027</p>
-            </div>
+            {/* Dynamic Content Wrapper for adjusting top margin over custom backgrounds */}
+            <div style={{ paddingTop: config.bgImage ? config.contentMarginTop : 0 }}>
+              {/* Header */}
+              {!config.bgImage && (
+                <>
+                  <div style={{ textAlign: 'center', marginBottom: 40 }}>
+                    {config.showLogo && (
+                      config.logoImage ? 
+                      <img src={config.logoImage} style={{ width: 80, height: 80, objectFit: 'contain', margin: '0 auto 15px', display: 'block' }} /> :
+                      <div style={{ width: 80, height: 80, background: config.headerColor, borderRadius: '50%', margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}><FiAward size={40}/></div>
+                    )}
+                    <h1 style={{ fontSize: 28, fontWeight: 900, color: config.headerColor, textTransform: 'uppercase' }}>{config.schoolName}</h1>
+                    <p style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 5 }}>{config.address}</p>
+                  </div>
+      
+                  <div style={{ borderBottom: `2px solid ${config.borderColor}`, margin: '20px 0' }} />
+                  
+                  <div style={{ textAlign: 'center', marginBottom: 30 }}>
+                    <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: 2, color: 'var(--gray-800)' }}>ACADEMIC REPORT CARD</h2>
+                    <p style={{ fontSize: 14, color: 'var(--gray-500)' }}>Annual Session 2026 - 2027</p>
+                  </div>
+                </>
+              )}
 
             {/* Student Info Area */}
             <div style={{ display: 'flex', gap: 30, marginBottom: 40 }}>
@@ -163,16 +190,24 @@ export default function CertificateDesigner() {
             </table>
 
             {/* Signature Area */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 80 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 80, position: 'relative' }}>
               <div style={{ textAlign: 'center', width: 150 }}>
+                {config.qrImage ? <img src={config.qrImage} style={{ width: 60, height: 60, marginBottom: 10 }} /> : <div style={{ height: 60, width: 60, border: '1px solid #ddd', margin: '0 auto 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#aaa' }}>QR</div>}
                 <div style={{ borderBottom: '1px solid var(--gray-300)', marginBottom: 8 }}></div>
-                <div style={{ fontSize: 12, fontWeight: 700 }}>Class Teacher</div>
+                <div style={{ fontSize: 12, fontWeight: 700 }}>Class Teacher / Stamp</div>
               </div>
               <div style={{ textAlign: 'center', width: 150 }}>
-                {config.showSign && <div style={{ height: 40, fontSize: 24, fontFamily: 'cursive', color: config.headerColor, opacity: 0.7 }}>Principal</div>}
+                {config.showSign && (
+                  config.signImage ? 
+                  <img src={config.signImage} style={{ height: 40, objectFit: 'contain', margin: '0 auto 10px' }} /> :
+                  <div style={{ height: 40, fontSize: 24, fontFamily: 'cursive', color: config.headerColor, opacity: 0.7 }}>Principal</div>
+                )}
                 <div style={{ borderBottom: '1px solid var(--gray-300)', marginBottom: 8 }}></div>
                 <div style={{ fontSize: 12, fontWeight: 700 }}>Principal</div>
               </div>
+            </div>
+            
+            {/* End of Dynamic Wrapper */}
             </div>
           </div>
         </div>

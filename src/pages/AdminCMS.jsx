@@ -1,15 +1,18 @@
 import { useState } from 'react'
 import { useCms } from '../context/CmsContext'
-import { FiLayout, FiImage, FiInfo, FiMail, FiSave, FiLogOut, FiCheckCircle, FiLock, FiMonitor, FiCalendar, FiUsers, FiAward } from 'react-icons/fi'
+import { FiLayout, FiImage, FiInfo, FiMail, FiSave, FiLogOut, FiCheckCircle, FiLock, FiMonitor, FiCalendar, FiUsers, FiAward, FiSettings, FiShield, FiUpload, FiPlus, FiTrash2 } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 export default function AdminCMS() {
   const { content, updateContent } = useCms()
+  const { sessions, addSession, deleteSession, currentSession, updateSession } = useAuth()
   const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('nms_cms_auth') === 'true')
   const [pass, setPass] = useState('')
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState('home')
   const [saved, setSaved] = useState(false)
+  const [newSessionInput, setNewSessionInput] = useState('')
 
   const handleLogin = (e) => {
     e.preventDefault()
@@ -29,6 +32,32 @@ export default function AdminCMS() {
   const handleSave = () => {
     setSaved(true)
     setTimeout(() => setSaved(false), 3000)
+  }
+
+  const FileField = ({ label, value, onUpdate }) => {
+    const handleFileChange = (e) => {
+      const file = e.target.files[0]
+      if (file) {
+        const reader = new FileReader()
+        reader.onloadend = () => onUpdate(reader.result)
+        reader.readAsDataURL(file)
+      }
+    }
+
+    return (
+      <div style={{ marginBottom: 15, padding: 15, background: 'var(--gray-50)', borderRadius: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <label style={{ fontSize: 11, fontWeight: 800, color: 'var(--gray-500)', textTransform: 'uppercase' }}>{label}</label>
+          {value && <span style={{ fontSize: 10, color: 'var(--success-600)', fontWeight: 700 }}><FiCheckCircle /> Document Uploaded</span>}
+        </div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <input type="file" accept=".pdf,image/*" onChange={handleFileChange} style={{ fontSize: 12, flex: 1 }} />
+          {value && (
+            <a href={value} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm" style={{ padding: '4px 12px' }}>View</a>
+          )}
+        </div>
+      </div>
+    )
   }
 
   const ImageField = ({ label, value, onUpdate }) => {
@@ -92,6 +121,7 @@ export default function AdminCMS() {
             { id: 'settings', label: 'General Settings', icon: <FiSettings /> },
             { id: 'home', label: 'Home Page', icon: <FiLayout /> },
             { id: 'about', label: 'About Us', icon: <FiInfo /> },
+            { id: 'disclosure', label: 'Mandatory Disclosure', icon: <FiShield /> },
             { id: 'admissions', label: 'Admissions', icon: <FiCheckCircle /> },
             { id: 'faculty', label: 'Faculty Management', icon: <FiUsers /> },
             { id: 'results', label: 'Board Results', icon: <FiAward /> },
@@ -156,6 +186,82 @@ export default function AdminCMS() {
                        </div>
                     </div>
                  </div>
+              </div>
+            </div>
+          )}
+          
+          {activeTab === 'disclosure' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
+              <div>
+                <h4 style={{ fontSize: 15, fontWeight: 800, marginBottom: 20 }}>A. General School Information</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 15 }}>
+                  {content.mandatoryDisclosure.general.map((item, i) => (
+                    <div key={i} className="form-group">
+                      <label className="form-label">{item.label}</label>
+                      <input className="form-input" value={item.value} onChange={e => {
+                        const data = { ...content.mandatoryDisclosure };
+                        data.general[i].value = e.target.value;
+                        updateContent('mandatoryDisclosure', data);
+                      }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--gray-100)', paddingTop: 30 }}>
+                <h4 style={{ fontSize: 15, fontWeight: 800, marginBottom: 20 }}>B. Trust / Society Information</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 15 }}>
+                  {content.mandatoryDisclosure.trust.map((item, i) => (
+                    <div key={i} className="form-group">
+                      <label className="form-label">{item.label}</label>
+                      <input className="form-input" value={item.value} onChange={e => {
+                        const data = { ...content.mandatoryDisclosure };
+                        data.trust[i].value = e.target.value;
+                        updateContent('mandatoryDisclosure', data);
+                      }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--gray-100)', paddingTop: 30 }}>
+                <h4 style={{ fontSize: 15, fontWeight: 800, marginBottom: 20 }}>C. Infrastructure Details</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 15 }}>
+                  {content.mandatoryDisclosure.infrastructure.map((item, i) => (
+                    <div key={i} className="form-group">
+                      <label className="form-label">{item.label}</label>
+                      <input className="form-input" value={item.value} onChange={e => {
+                        const data = { ...content.mandatoryDisclosure };
+                        data.infrastructure[i].value = e.target.value;
+                        updateContent('mandatoryDisclosure', data);
+                      }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--gray-100)', paddingTop: 30 }}>
+                <h4 style={{ fontSize: 15, fontWeight: 800, marginBottom: 20 }}>D. Official Certificates (PDF/Images)</h4>
+                <p style={{ fontSize: 13, color: 'var(--gray-400)', marginBottom: 25 }}>Upload the scanned copies of required documents as per CBSE affiliation requirements.</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }}>
+                  {content.mandatoryDisclosure.certificates.map((item, i) => (
+                    <div key={i}>
+                      <div className="form-group" style={{ marginBottom: 10 }}>
+                        <label className="form-label">{item.label} (Status/Ref)</label>
+                        <input className="form-input" value={item.value} onChange={e => {
+                          const data = { ...content.mandatoryDisclosure };
+                          data.certificates[i].value = e.target.value;
+                          updateContent('mandatoryDisclosure', data);
+                        }} />
+                      </div>
+                      <FileField label="Upload Scanned Document" value={item.file} onUpdate={val => {
+                        const data = { ...content.mandatoryDisclosure };
+                        data.certificates[i].file = val;
+                        updateContent('mandatoryDisclosure', data);
+                      }} />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}

@@ -1,38 +1,53 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useAuth, MOCK_DATA } from '../../context/AuthContext'
+import { useData } from '../../context/DataContext'
+import { exportToCSV } from '../../utils/exportUtils'
+import { generatePDF } from '../../utils/pdfUtils'
 import { FiAward, FiCheckCircle, FiEdit3, FiSave, FiX, FiFilter, FiTrendingUp, FiFileText, FiDownload, FiSearch, FiUser, FiChevronRight, FiPrinter, FiLayout } from 'react-icons/fi'
 
 export default function ExamsPage() {
-  const { user } = useAuth()
+  const { user, currentSession } = useAuth()
+  const { marks: marksData, updateMarks, students = [] } = useData() || {}
   const isAdmin = user?.role === 'admin'
   const isTeacher = user?.role === 'teacher'
   const isStudent = user?.role === 'student'
   const isParent = user?.role === 'parent'
 
   // Filter States
-  const [selectedClass, setSelectedClass] = useState('X')
+  const [selectedClass, setSelectedClass] = useState('10th')
   const [selectedSection, setSelectedSection] = useState('A')
-  const [selectedExam, setSelectedExam] = useState(MOCK_DATA.examTypes[0])
+  const [selectedExam, setSelectedExam] = useState('')
   const [search, setSearch] = useState('')
   const [printStudent, setPrintStudent] = useState(null)
-  
-  // Marks State
-  const [marksData, setMarksData] = useState(() => {
-    const saved = localStorage.getItem('nms_exam_marks')
-    return saved ? JSON.parse(saved) : MOCK_DATA.studentResults
-  })
 
-  const [students] = useState(() => {
-    const saved = localStorage.getItem('nms_students')
-    return saved ? JSON.parse(saved) : MOCK_DATA.students
-  })
+  // Dynamic Exam Settings
+  const examTypes = useMemo(() => {
+    const saved = localStorage.getItem(`nms_exam_types_${currentSession}`)
+    return saved ? JSON.parse(saved) : ['FA1', 'FA2', 'SA1', 'FA3', 'FA4', 'SA2']
+  }, [currentSession])
+
+  const examConfig = useMemo(() => {
+    const saved = localStorage.getItem(`nms_exam_config_${currentSession}`)
+    return saved ? JSON.parse(saved) : {}
+  }, [currentSession])
+
+  useEffect(() => {
+    if (examTypes.length > 0 && !selectedExam) setSelectedExam(examTypes[0])
+  }, [examTypes, selectedExam])
+  
 
   const [isEditing, setIsEditing] = useState(false)
   const [editBuffer, setEditBuffer] = useState({}) // studentId -> subject -> mark
 
   // Derived Data
-  const classes = ['PG', 'Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', 'X']
-  const sections = ['-', 'A', 'B', 'C', 'D']
+  const globalClasses = useMemo(() => {
+    return JSON.parse(localStorage.getItem(`nms_classes_${currentSession}`) || localStorage.getItem('nms_classes') || '[]')
+  }, [currentSession])
+
+  const classes = globalClasses.length > 0 ? globalClasses.map(c => c.class) : ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
+  const selectedClassObj = globalClasses.find(c => c.class === selectedClass)
+  const sections = ['-', ...(selectedClassObj ? selectedClassObj.sections.map(s => s.name) : ['A', 'B', 'C', 'D'])]
+  const subjects = selectedClassObj?.subjects || ['English', 'Hindi', 'Mathematics', 'Science', 'Social Sc.']
   
   const filteredStudents = useMemo(() => {
     return students.filter(s => {
@@ -44,8 +59,6 @@ export default function ExamsPage() {
       return matchesClass && matchesSection && matchesSearch
     })
   }, [selectedClass, selectedSection, search, students])
-
-  const subjects = ['Physics', 'Chemistry', 'Mathematics', 'English', 'Hindi', 'Social Sc.']
 
   const handleStartEdit = () => {
     const buffer = {}
@@ -68,18 +81,19 @@ export default function ExamsPage() {
       newMarksData[sid][selectedExam] = subjects.map(sub => ({
         subject: sub,
         marks: editBuffer[sid][sub] || 0,
-        max: 100
+        max: Number(examConfig[`${selectedExam}_${selectedClass}_${sub}`]) || 100
       }))
     })
-    setMarksData(newMarksData)
-    localStorage.setItem('nms_exam_marks', JSON.stringify(newMarksData))
+    updateMarks(newMarksData)
     setIsEditing(false)
   }
 
   const getStudentTotal = (sid) => {
     const sMarks = (marksData[sid] || {})[selectedExam] || []
-    if (sMarks.length === 0) return 0
-    return sMarks.reduce((sum, m) => sum + (parseFloat(m.marks) || 0), 0)
+    if (sMarks.length === 0) return { marks: 0, max: 0 }
+    const totalMarks = sMarks.reduce((sum, m) => sum + (parseFloat(m.marks) || 0), 0)
+    const totalMax = sMarks.reduce((sum, m) => sum + (parseFloat(m.max) || 0), 0)
+    return { marks: totalMarks, max: totalMax }
   }
 
   const getGrade = (pct) => {
@@ -93,6 +107,22 @@ export default function ExamsPage() {
     return 'E'
   }
 
+  const handleExport = () => {
+    const exportData = filteredStudents.map(s => {
+      const studentMarks = (marksData[s.id] || {})[selectedExam] || []
+      const row = { 'ID': s.id, 'Name': s.name, 'Roll No': s.rollNo }
+      subjects.forEach(sub => {
+        row[sub] = studentMarks.find(m => m.subject === sub)?.marks || '0'
+      })
+      const totals = getStudentTotal(s.id)
+      row['Total'] = totals.marks
+      row['Max'] = totals.max
+      row['Percentage'] = totals.max > 0 ? ((totals.marks / totals.max) * 100).toFixed(2) + '%' : '0%'
+      return row
+    })
+    exportToCSV(exportData, `${selectedExam}_Results_${selectedClass}_${selectedSection}.csv`)
+  }
+
   return (
     <div className="exams-page">
       <div className="dash-page-header">
@@ -103,6 +133,9 @@ export default function ExamsPage() {
           </div>
           {(isAdmin || isTeacher) && (
             <div style={{ display: 'flex', gap: 10 }}>
+              <button className="btn btn-secondary btn-sm" onClick={handleExport}>
+                <FiDownload /> Export Marks
+              </button>
               {isAdmin && (
                 <button className="btn btn-secondary btn-sm" onClick={() => window.location.href='/erp/certificate-design'}>
                   <FiLayout /> Design Certificate
@@ -131,7 +164,7 @@ export default function ExamsPage() {
         <div className="form-group" style={{ marginBottom: 0 }}>
           <label className="form-label" style={{ fontSize: 11, color: 'var(--gray-400)' }}>EXAM TYPE</label>
           <select className="form-select" value={selectedExam} onChange={e => { setSelectedExam(e.target.value); setIsEditing(false); }}>
-            {MOCK_DATA.examTypes.map(et => <option key={et} value={et}>{et}</option>)}
+            {examTypes.map(et => <option key={et} value={et}>{et}</option>)}
           </select>
         </div>
         <div className="form-group" style={{ marginBottom: 0 }}>
@@ -172,9 +205,8 @@ export default function ExamsPage() {
               {filteredStudents.length === 0 ? (
                 <tr><td colSpan={subjects.length + 3} style={{ textAlign: 'center', padding: 60, color: 'var(--gray-400)' }}>No students found in this class/section.</td></tr>
               ) : filteredStudents.map(s => {
-                const total = getStudentTotal(s.id)
-                const max = subjects.length * 100
-                const pct = Math.round((total / max) * 100)
+                const totals = getStudentTotal(s.id)
+                const pct = totals.max > 0 ? Math.round((totals.marks / totals.max) * 100) : 0
                 return (
                   <tr key={s.id} style={{ background: 'white', transition: 'transform 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
                     <td style={{ padding: '15px' }}>
@@ -201,12 +233,12 @@ export default function ExamsPage() {
                       </td>
                     ))}
                     <td style={{ textAlign: 'center' }}>
-                      <div style={{ fontWeight: 800, color: 'var(--primary-700)' }}>{total}</div>
-                      <div style={{ fontSize: 9, color: 'var(--gray-400)' }}>/ {max}</div>
+                      <div style={{ fontWeight: 800, color: 'var(--primary-700)' }}>{totals.marks}</div>
+                      <div style={{ fontSize: 9, color: 'var(--gray-400)' }}>/ {totals.max}</div>
                     </td>
                     <td style={{ textAlign: 'center' }}>
                       <span className={`badge ${pct >= 33 ? 'badge-success' : 'badge-error'}`} style={{ minWidth: 40 }}>
-                        {total > 0 ? getGrade(pct) : '--'}
+                        {totals.marks > 0 ? getGrade(pct) : '--'}
                       </span>
                     </td>
                     <td style={{ textAlign: 'center' }}>
@@ -242,7 +274,7 @@ export default function ExamsPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
               <h3 style={{ fontWeight: 800 }}>Student Report Card Preview</h3>
               <div style={{ display: 'flex', gap: 10 }}>
-                <button className="btn btn-primary" onClick={() => window.print()}><FiPrinter /> Print Now</button>
+                <button className="btn btn-primary" onClick={() => generatePDF('report-card-printable', `ReportCard_${printStudent.id}_${selectedExam}.pdf`)}><FiPrinter /> Download PDF Report</button>
                 <button className="btn btn-secondary" onClick={() => setPrintStudent(null)}><FiX /></button>
               </div>
             </div>
@@ -276,12 +308,14 @@ export default function ExamsPage() {
                   {subjects.map(sub => {
                     const markObj = (marksData[printStudent.id]?.[selectedExam] || []).find(m => m.subject === sub)
                     const marks = markObj ? markObj.marks : 0
+                    const max = markObj?.max || Number(examConfig[`${selectedExam}_${printStudent.class}_${sub}`]) || 100
+                    const pct = max > 0 ? (marks / max) * 100 : 0
                     return (
                       <tr key={sub}>
                         <td style={{ border: '1px solid var(--gray-200)', padding: '10px' }}>{sub}</td>
-                        <td style={{ border: '1px solid var(--gray-200)', textAlign: 'center' }}>100</td>
+                        <td style={{ border: '1px solid var(--gray-200)', textAlign: 'center' }}>{max}</td>
                         <td style={{ border: '1px solid var(--gray-200)', textAlign: 'center', fontWeight: 700 }}>{marks || '--'}</td>
-                        <td style={{ border: '1px solid var(--gray-200)', textAlign: 'center' }}>{marks ? getGrade(Math.round((marks/100)*100)) : '--'}</td>
+                        <td style={{ border: '1px solid var(--gray-200)', textAlign: 'center' }}>{marks ? getGrade(Math.round(pct)) : '--'}</td>
                       </tr>
                     )
                   })}
@@ -289,10 +323,14 @@ export default function ExamsPage() {
                 <tfoot>
                   <tr style={{ fontWeight: 800, background: 'var(--gray-50)' }}>
                     <td style={{ border: '1px solid var(--gray-200)' }}>AGGREGATE TOTAL</td>
-                    <td style={{ border: '1px solid var(--gray-200)', textAlign: 'center' }}>{subjects.length * 100}</td>
-                    <td style={{ border: '1px solid var(--gray-200)', textAlign: 'center' }}>{getStudentTotal(printStudent.id)}</td>
+                    <td style={{ border: '1px solid var(--gray-200)', textAlign: 'center' }}>{getStudentTotal(printStudent.id).max}</td>
+                    <td style={{ border: '1px solid var(--gray-200)', textAlign: 'center' }}>{getStudentTotal(printStudent.id).marks}</td>
                     <td style={{ border: '1px solid var(--gray-200)', textAlign: 'center' }}>
-                      {getGrade(Math.round((getStudentTotal(printStudent.id) / (subjects.length * 100)) * 100))}
+                      {(() => {
+                        const totals = getStudentTotal(printStudent.id)
+                        const pct = totals.max > 0 ? Math.round((totals.marks / totals.max) * 100) : 0
+                        return getGrade(pct)
+                      })()}
                     </td>
                   </tr>
                 </tfoot>
@@ -310,8 +348,18 @@ export default function ExamsPage() {
       <style>{`
         @media print {
           body * { visibility: hidden; }
-          #report-card-printable, #report-card-printable * { visibility: visible; }
-          #report-card-printable { position: absolute; left: 0; top: 0; width: 100%; border: none !important; }
+          #report-card-printable, #report-card-printable * { 
+            visibility: visible; 
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          #report-card-printable { 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            border: none !important; 
+          }
         }
         .exams-page tr:hover {
           background: var(--gray-50) !important;

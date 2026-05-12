@@ -18,6 +18,7 @@ import { ProtectedRoute, RoleDashboard } from './components/ERPRouter'
 import StudentsPage from './pages/erp/StudentsPage'
 import StaffPage from './pages/erp/StaffPage'
 import FeesPage from './pages/erp/FeesPage'
+import ExpensesPage from './pages/erp/ExpensesPage'
 import AttendancePage from './pages/erp/AttendancePage'
 import ExamsPage from './pages/erp/ExamsPage'
 import TimetablePage from './pages/erp/TimetablePage'
@@ -27,13 +28,13 @@ import NoticesPage from './pages/erp/NoticesPage'
 import MessagesPage from './pages/erp/MessagesPage'
 import HomeworkPage from './pages/erp/HomeworkPage'
 import SettingsPage from './pages/erp/SettingsPage'
-import ClassesPage from './pages/erp/ClassesPage'
 import CertificateDesigner from './pages/erp/CertificateDesigner'
 import IDCardDesigner from './pages/erp/IDCardDesigner'
 import PromotionPage from './pages/erp/PromotionPage'
 import MarkAttendancePage from './pages/erp/MarkAttendancePage'
 import MyClassesPage from './pages/erp/MyClassesPage'
 import StudentProfilePage from './pages/erp/StudentProfilePage'
+import StaffAttendancePage from './pages/erp/StaffAttendancePage'
 import {
   FiUsers, FiUser, FiDollarSign, FiClock, FiFileText,
   FiCalendar, FiTruck, FiBookOpen, FiBarChart2, FiSettings,
@@ -75,6 +76,7 @@ export default function App() {
           <Route path="/erp/students" element={<ProtectedRoute><StudentsPage /></ProtectedRoute>} />
           <Route path="/erp/staff" element={<ProtectedRoute><StaffPage /></ProtectedRoute>} />
           <Route path="/erp/fees" element={<ProtectedRoute><FeesPage /></ProtectedRoute>} />
+          <Route path="/erp/expenses" element={<ProtectedRoute role={['admin']}><ExpensesPage /></ProtectedRoute>} />
           <Route path="/erp/attendance" element={<ProtectedRoute><AttendancePage /></ProtectedRoute>} />
           <Route path="/erp/exams" element={<ProtectedRoute><ExamsPage /></ProtectedRoute>} />
           <Route path="/erp/marks" element={<ProtectedRoute><ExamsPage /></ProtectedRoute>} />
@@ -86,7 +88,6 @@ export default function App() {
           <Route path="/erp/homework" element={<ProtectedRoute><HomeworkPage /></ProtectedRoute>} />
           <Route path="/erp/results" element={<ProtectedRoute><ExamsPage /></ProtectedRoute>} />
           <Route path="/erp/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-          <Route path="/erp/classes" element={<ProtectedRoute role={['admin']}><ClassesPage /></ProtectedRoute>} />
           <Route path="/erp/certificate-design" element={<ProtectedRoute role={['admin']}><CertificateDesigner /></ProtectedRoute>} />
           <Route path="/erp/id-card-design" element={<ProtectedRoute role={['admin']}><IDCardDesigner /></ProtectedRoute>} />
           <Route path="/erp/promotion" element={<ProtectedRoute role={['admin']}><PromotionPage /></ProtectedRoute>} />
@@ -95,6 +96,7 @@ export default function App() {
           <Route path="/erp/profile" element={<ProtectedRoute role={['student']}><StudentProfilePage /></ProtectedRoute>} />
           <Route path="/erp/children" element={<ProtectedRoute><StudentsPage /></ProtectedRoute>} />
           <Route path="/erp/reports" element={<ProtectedRoute><ExamsPage /></ProtectedRoute>} />
+          <Route path="/erp/staff-attendance" element={<ProtectedRoute role={['admin', 'teacher']}><StaffAttendancePage /></ProtectedRoute>} />
         </Routes>
       ) : (
         <PublicLayout>

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useAuth, MOCK_DATA } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import { FiArrowUp, FiFilter, FiUser, FiCheckCircle, FiXCircle, FiSave, FiAlertCircle, FiChevronRight, FiUsers } from 'react-icons/fi'
+import { formatDate } from '../../utils/exportUtils'
 
 export default function PromotionPage() {
   const { user } = useAuth()
@@ -16,8 +17,16 @@ export default function PromotionPage() {
   
   const [selectedStudents, setSelectedStudents] = useState([])
   const [promotionResults, setPromotionResults] = useState([]) // Array of {id, action: 'promote' | 'fail'}
+  const [destSession, setDestSession] = useState('')
 
-  const classes = ['PG', 'Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', 'X']
+  const classes = ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
+  
+  // Initialize destSession to next session if available
+  useMemo(() => {
+    const idx = sessions.indexOf(currentSession)
+    if (idx >= 0 && idx < sessions.length - 1) setDestSession(sessions[idx+1])
+    else setDestSession(currentSession)
+  }, [currentSession, sessions])
 
   const filteredStudents = useMemo(() => {
     return students.filter(s => {
@@ -44,21 +53,57 @@ export default function PromotionPage() {
 
   const finalizePromotions = () => {
     if (promotionResults.length === 0) return
+    if (!destSession) return alert('Please select a destination session.')
+
+    const destStudentsKey = `nms_students_${destSession}`
+    const destFeesKey = `nms_fees_${destSession}`
     
-    const updatedStudents = students.map(s => {
-      const result = promotionResults.find(r => r.id === s.id)
-      if (result) {
-        if (result.action === 'promote') {
-          return { ...s, class: toClass, section: toSection }
+    const targetStudents = JSON.parse(localStorage.getItem(destStudentsKey) || '[]')
+    const targetFees = JSON.parse(localStorage.getItem(destFeesKey) || '{}')
+    const currentFees = JSON.parse(localStorage.getItem(`nms_fees_${currentSession}`) || '{}')
+    
+    let promotedCount = 0
+
+    promotionResults.forEach(res => {
+      if (res.action === 'promote') {
+        const student = students.find(s => s.id === res.id)
+        if (student) {
+          // 1. Prepare student for new session
+          const promotedStudent = { 
+            ...student, 
+            class: toClass, 
+            section: toSection,
+            // Reset session-specific fields if any
+          }
+          
+          // Add or Update in target session
+          const existingIdx = targetStudents.findIndex(s => s.id === student.id)
+          if (existingIdx >= 0) targetStudents[existingIdx] = promotedStudent
+          else targetStudents.push(promotedStudent)
+
+          // 2. Carry forward dues
+          const studentFee = currentFees[student.id] || { remaining: 0 }
+          const unpaid = Number(studentFee.remaining || 0)
+          
+          if (!targetFees[student.id]) {
+            targetFees[student.id] = { total: 0, paid: 0, discount: 0, remaining: 0, history: [], prevSessionDues: unpaid }
+          } else {
+            targetFees[student.id].prevSessionDues = unpaid
+          }
+          // Recalculate remaining including prev dues
+          targetFees[student.id].remaining = (Number(targetFees[student.id].total || 0) + unpaid) - Number(targetFees[student.id].paid || 0) - Number(targetFees[student.id].discount || 0)
+          
+          promotedCount++
         }
       }
-      return s
     })
 
-    updateStudents(updatedStudents)
+    localStorage.setItem(destStudentsKey, JSON.stringify(targetStudents))
+    localStorage.setItem(destFeesKey, JSON.stringify(targetFees))
+    
     setPromotionResults([])
     setSelectedStudents([])
-    alert('Promotions/Results updated successfully for the selected students!')
+    alert(`Successfully promoted ${promotedCount} students to session ${destSession}!`)
   }
 
   return (
@@ -114,6 +159,19 @@ export default function PromotionPage() {
               Students marked as "Promoted" will be moved to Class {toClass}-{toSection}.
             </div>
           </div>
+
+          <div className="dash-widget" style={{ padding: 25, border: '1px solid var(--accent-200)', background: 'var(--accent-50)' }}>
+            <h4 style={{ fontSize: 13, fontWeight: 800, color: 'var(--accent-700)', textTransform: 'uppercase', marginBottom: 20 }}>3. Destination Session</h4>
+            <div className="form-group">
+              <label className="form-label">Promote to Session</label>
+              <select className="form-select" value={destSession} onChange={e => setDestSession(e.target.value)}>
+                {sessions.map(s => <option key={s} value={s}>{s} {s === currentSession ? '(Current)' : ''}</option>)}
+              </select>
+            </div>
+            <p style={{ fontSize: 11, color: 'var(--accent-600)', marginTop: 10 }}>
+              Unpaid dues from <strong>{currentSession}</strong> will be automatically carried forward to <strong>{destSession}</strong>.
+            </p>
+          </div>
         </div>
 
         {/* Step 2: Student List & Actions */}
@@ -155,7 +213,7 @@ export default function PromotionPage() {
                       </td>
                       <td>
                         <div style={{ fontWeight: 700 }}>{s.name}</div>
-                        <div style={{ fontSize: 10, color: 'var(--gray-400)' }}>ID: {s.id}</div>
+                        <div style={{ fontSize: 10, color: 'var(--gray-400)' }}>ID: {s.id} | DOB: {formatDate(s.dob)}</div>
                       </td>
                       <td>
                         <div style={{ fontSize: 12 }}>Roll No: {s.rollNo}</div>

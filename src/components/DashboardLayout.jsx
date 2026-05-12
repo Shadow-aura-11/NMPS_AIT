@@ -6,7 +6,7 @@ import {
   FiClock, FiTruck, FiBookOpen, FiBarChart2, FiSettings,
   FiLogOut, FiBell, FiMenu, FiX, FiChevronDown, FiSearch,
   FiUser, FiMessageCircle, FiHome, FiCheckSquare, FiClipboard,
-  FiBook, FiAward, FiLayout, FiArrowUp
+  FiBook, FiAward, FiLayout, FiArrowUp, FiActivity
 } from 'react-icons/fi'
 import './DashboardLayout.css'
 
@@ -17,21 +17,21 @@ const NAV_ITEMS = {
     { icon: <FiUsers />, label: 'Students', path: '/erp/students' },
     { icon: <FiUser />, label: 'Staff', path: '/erp/staff' },
     { icon: <FiDollarSign />, label: 'Fee Management', path: '/erp/fees' },
-    { icon: <FiClock />, label: 'Attendance', path: '/erp/attendance' },
+    { icon: <FiClock />, label: 'Student Attendance', path: '/erp/attendance' },
+    { icon: <FiActivity />, label: 'Staff Attendance', path: '/erp/staff-attendance' },
     { icon: <FiCheckSquare />, label: 'Mark Todays attendance', path: '/erp/mark-attendance' },
     { icon: <FiFileText />, label: 'Exams & Results', path: '/erp/exams' },
-    { icon: <FiArrowUp />, label: 'Promotions', path: '/erp/promotion' },
     { icon: <FiCalendar />, label: 'Timetable', path: '/erp/timetable' },
     { icon: <FiTruck />, label: 'Transport', path: '/erp/transport' },
+    { icon: <FiDollarSign />, label: 'Expenses', path: '/erp/expenses' },
     { icon: <FiBell />, label: 'Notices', path: '/erp/notices' },
     { icon: <FiMessageCircle />, label: 'Messages', path: '/erp/messages' },
-    { icon: <FiLayout />, label: 'Classes & Sections', path: '/erp/classes' },
     { icon: <FiSettings />, label: 'Settings', path: '/erp/settings' },
   ],
   teacher: [
     { icon: <FiGrid />, label: 'Dashboard', path: '/erp/dashboard' },
     { icon: <FiUsers />, label: 'My Classes', path: '/erp/my-classes' },
-    { icon: <FiClock />, label: 'Attendance', path: '/erp/attendance' },
+    { icon: <FiClock />, label: 'Student Attendance', path: '/erp/attendance' },
     { icon: <FiCheckSquare />, label: 'Mark Todays attendance', path: '/erp/mark-attendance' },
     { icon: <FiClipboard />, label: 'Marks Entry', path: '/erp/marks' },
     { icon: <FiBook />, label: 'Homework', path: '/erp/homework' },
@@ -43,7 +43,7 @@ const NAV_ITEMS = {
   student: [
     { icon: <FiGrid />, label: 'Dashboard', path: '/erp/dashboard' },
     { icon: <FiUser />, label: 'My Personal Details', path: '/erp/profile' },
-    { icon: <FiClock />, label: 'My Attendance', path: '/erp/attendance' },
+    { icon: <FiClock />, label: 'My Attendance History', path: '/erp/attendance' },
     { icon: <FiAward />, label: 'My Results', path: '/erp/results' },
     { icon: <FiBook />, label: 'Homework', path: '/erp/homework' },
     { icon: <FiCalendar />, label: 'Timetable', path: '/erp/timetable' },
@@ -92,8 +92,12 @@ export default function DashboardLayout({ children }) {
         </div>
 
         <div className="dash-sidebar-user">
-          <div className="dash-avatar" style={{ background: roleColors[user?.role] }}>
-            {user?.avatar}
+          <div className="dash-avatar" style={{ background: roleColors[user?.role], overflow: 'hidden' }}>
+            {user?.photo ? (
+              <img src={user.photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Avatar" />
+            ) : (
+              user?.avatar
+            )}
           </div>
           <div className="dash-user-info">
             <span className="dash-user-name">{user?.name}</span>
@@ -149,8 +153,12 @@ export default function DashboardLayout({ children }) {
             </button>
             <div className="dash-profile-wrapper">
               <button className="dash-profile-btn" onClick={() => setProfileOpen(!profileOpen)}>
-                <div className="dash-avatar-sm" style={{ background: roleColors[user?.role] }}>
-                  {user?.avatar}
+                <div className="dash-avatar-sm" style={{ background: roleColors[user?.role], overflow: 'hidden' }}>
+                  {user?.photo ? (
+                    <img src={user.photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Avatar" />
+                  ) : (
+                    user?.avatar
+                  )}
                 </div>
                 <span className="dash-profile-name">{user?.name?.split(' ')[0]}</span>
                 <FiChevronDown size={14} />

@@ -1,90 +1,256 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { useAuth, getSessionStore, saveSessionStore, dataKey } from './AuthContext'
 
 const DataContext = createContext(null)
 
-const INITIAL_MOCK_STUDENTS = [
-  { 
-    id: 'STU001', name: 'Aarav Sharma', class: 'X', section: 'A', rollNo: 12, gender: 'M', attendance: 94, feeStatus: 'Partial', phone: '+91 98765 43210',
-    dob: '2010-05-15', bloodGroup: 'B+', address: 'H-42, Rajouri Garden, New Delhi', admissionDate: '2015-04-01', fatherName: 'Mr. Vikram Sharma', motherName: 'Mrs. Suman Sharma', transport: 'Route 1'
-  },
-  { 
-    id: 'STU002', name: 'Anika Sharma', class: '6th', section: 'B', rollNo: 8, gender: 'F', attendance: 97, feeStatus: 'Paid', phone: '+91 98765 43210',
-    dob: '2014-08-22', bloodGroup: 'O+', address: 'H-42, Rajouri Garden, New Delhi', admissionDate: '2019-04-01', fatherName: 'Mr. Vikram Sharma', motherName: 'Mrs. Suman Sharma', transport: 'Route 1'
-  }
-]
+const INITIAL_MOCK_STUDENTS = []
+const INITIAL_MOCK_STAFF = []
+const INITIAL_MOCK_TRANSPORT = []
+const INITIAL_MOCK_VEHICLES = []
 
 export function DataProvider({ children }) {
+  const { currentSession } = useAuth()
+
   // 1. Centralized State
   const [students, setStudents] = useState(() => {
-    const saved = localStorage.getItem('nms_students')
-    return saved ? JSON.parse(saved) : INITIAL_MOCK_STUDENTS
+    // Initial load tries to get session specific
+    const saved = localStorage.getItem(`nms_students_${currentSession}`)
+    let loaded = [] // Start blank for new sessions
+    try {
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed)) loaded = parsed
+      } else {
+        loaded = []
+      }
+    } catch (e) { console.error("Failed to parse students", e) }
+    
+    // Auto-migrate any cached Roman Numerals to the new standard pattern
+    const classMap = { 'XII': '10th', 'XI': '10th', 'X': '10th', 'IX': '9th', 'VIII': '8th', 'VII': '7th', 'VI': '6th', 'V': '5th', 'IV': '4th', 'III': '3rd', 'II': '2nd', 'I': '1st' }
+    let migrated = false
+    loaded = loaded.map(s => {
+      if (classMap[s.class]) { migrated = true; return { ...s, class: classMap[s.class] } }
+      if (s.class && s.class.includes('-')) {
+        let parts = s.class.split('-')
+        let c = parts[0]
+        if (classMap[c]) c = classMap[c]
+        migrated = true; return { ...s, class: c, section: parts[1] || s.section }
+      }
+      return s
+    })
+    
+    if (migrated && saved) localStorage.setItem(`nms_students_${currentSession}`, JSON.stringify(loaded))
+    return loaded
   })
 
-  const [attendance, setAttendance] = useState(() => {
-    const saved = localStorage.getItem('nms_global_attendance')
-    return saved ? JSON.parse(saved) : []
+  const [staff, setStaff] = useState(() => {
+    const saved = localStorage.getItem('nms_staff')
+    return saved ? JSON.parse(saved) : INITIAL_MOCK_STAFF
   })
 
-  const [marks, setMarks] = useState(() => {
-    const saved = localStorage.getItem('nms_exam_marks')
-    return saved ? JSON.parse(saved) : {}
-  })
+  // Session specific states
+  const [attendance, setAttendance] = useState([])
+  const [marks, setMarks] = useState({})
+  const [homework, setHomework] = useState([])
+  const [notices, setNotices] = useState([])
+  const [feeStats, setFeeStats] = useState({ collected: 0, pending: 0, overdue: 0, total: 2500000 })
+  const [holidays, setHolidays] = useState(['2026-01-26', '2026-08-15', '2026-10-02'])
+  
+  const [generalExpenses, setGeneralExpenses] = useState([])
+  const [fleetLogs, setFleetLogs] = useState([])
+  const [transportRoutes, setTransportRoutes] = useState([])
+  const [vehicles, setVehicles] = useState([])
+  const [refreshTick, setRefreshTick] = useState(0)
 
-  const [homework, setHomework] = useState(() => {
-    const saved = localStorage.getItem('nms_homework')
-    return saved ? JSON.parse(saved) : []
-  })
+  // Load data when session changes
+  useEffect(() => {
+    const store = getSessionStore(currentSession)
+    
+    // Update students for the selected session
+    const savedStudents = localStorage.getItem(`nms_students_${currentSession}`)
+    if (savedStudents) {
+      try {
+        setStudents(JSON.parse(savedStudents))
+      } catch (e) { console.error("Failed to parse students for session", e) }
+    } else if (currentSession === '2026-27' || currentSession === '2025-26') {
+      const globalSaved = localStorage.getItem('nms_students')
+      setStudents(globalSaved ? JSON.parse(globalSaved) : INITIAL_MOCK_STUDENTS)
+    } else {
+      setStudents([])
+    }
 
-  const [holidays, setHolidays] = useState(() => {
-    const saved = localStorage.getItem('nms_holidays')
-    return saved ? JSON.parse(saved) : ['2026-01-26', '2026-08-15', '2026-10-02']
-  })
+    setAttendance(store.attendance || [])
+    setMarks(store.results || {})
+    setHomework(store.homework || [])
+    setNotices(store.notices || [])
+    
+    // Load transport routes for session
+    const savedRoutes = localStorage.getItem(`nms_transport_${currentSession}`)
+    setTransportRoutes(savedRoutes ? JSON.parse(savedRoutes) : (currentSession.includes('2026') ? INITIAL_MOCK_TRANSPORT : []))
+    setFeeStats(store.feeStats || { collected: 0, pending: 0, overdue: 0, total: 2500000 })
+    
+    const hSaved = localStorage.getItem('nms_holidays')
+    if (hSaved) setHolidays(JSON.parse(hSaved))
+
+
+    setGeneralExpenses(JSON.parse(localStorage.getItem(`nms_expenses_${currentSession}`) || localStorage.getItem('nms_expenses') || '[]'))
+    setFleetLogs(JSON.parse(localStorage.getItem(`nms_fleet_logs_${currentSession}`) || localStorage.getItem('nms_fleet_logs') || '[]'))
+    setVehicles(JSON.parse(localStorage.getItem('nms_vehicles') || JSON.stringify(INITIAL_MOCK_VEHICLES)))
+  }, [currentSession])
+
+  // 1.5. Dynamic Fee Statistics Calculation
+  useEffect(() => {
+    const feeKeyStr = `nms_fees_${currentSession}`
+    const currentFees = JSON.parse(localStorage.getItem(feeKeyStr) || '{}')
+    const globalFeeConfig = JSON.parse(localStorage.getItem('nms_global_fee_config') || '{"classFees":{},"transportFees":{}}')
+    
+    let totalCollected = 0
+    let totalPending = 0
+    let totalExpected = 0
+    
+    students.forEach(student => {
+      const feeRecord = currentFees[student.id]
+      
+      if (feeRecord) {
+        // Use explicit record if it exists
+        totalCollected += Number(feeRecord.paid || 0)
+        totalPending += Number(feeRecord.remaining || 0)
+        totalExpected += (Number(feeRecord.total || 0) + Number(feeRecord.prevSessionDues || 0))
+      } else {
+        // Estimate based on global defaults if no record exists yet
+        const classFee = Number(globalFeeConfig.classFees?.[student.class] || 40000)
+        const transportFee = Number(globalFeeConfig.transportFees?.[student.transportRoute] || 0)
+        const estimatedTotal = classFee + transportFee
+        totalExpected += estimatedTotal
+        totalPending += estimatedTotal
+      }
+    })
+    
+    setFeeStats({
+      collected: totalCollected,
+      pending: totalPending,
+      total: totalExpected,
+      overdue: totalPending // For now mapping pending to overdue as a proxy
+    })
+  }, [students, currentSession, refreshTick])
+
+    const refreshData = useCallback(() => {
+    // Force re-read of everything
+    const savedStudents = localStorage.getItem(`nms_students_${currentSession}`) || localStorage.getItem('nms_students')
+    if (savedStudents) setStudents(JSON.parse(savedStudents))
+
+    const store = getSessionStore(currentSession)
+    setAttendance(store.attendance || [])
+    setMarks(store.results || {})
+    setHomework(store.homework || [])
+    setNotices(store.notices || [])
+    setFeeStats(store.feeStats || { collected: 0, pending: 0, overdue: 0, total: 2500000 })
+    
+    const hSaved = localStorage.getItem('nms_holidays')
+    if (hSaved) setHolidays(JSON.parse(hSaved))
+    
+    const sSaved = localStorage.getItem('nms_staff')
+    if (sSaved) setStaff(JSON.parse(sSaved))
+
+    setGeneralExpenses(JSON.parse(localStorage.getItem(`nms_expenses_${currentSession}`) || localStorage.getItem('nms_expenses') || '[]'))
+    setFleetLogs(JSON.parse(localStorage.getItem(`nms_fleet_logs_${currentSession}`) || localStorage.getItem('nms_fleet_logs') || '[]'))
+    
+    setRefreshTick(t => t + 1)
+  }, [currentSession])
 
   // 2. Storage Sync (Cross-Tab Support)
   useEffect(() => {
     const handleStorageChange = (e) => {
-      if (e.key === 'nms_students') setStudents(JSON.parse(e.newValue))
-      if (e.key === 'nms_global_attendance') setAttendance(JSON.parse(e.newValue))
-      if (e.key === 'nms_exam_marks') setMarks(JSON.parse(e.newValue))
-      if (e.key === 'nms_homework') setHomework(JSON.parse(e.newValue))
-      if (e.key === 'nms_holidays') setHolidays(JSON.parse(e.newValue))
+      if (e.key === `nms_students_${currentSession}`) setStudents(JSON.parse(e.newValue))
+      if (e.key === 'nms_staff') setStaff(JSON.parse(e.newValue))
+      if (e.key === dataKey(currentSession)) {
+        const val = JSON.parse(e.newValue)
+        setAttendance(val.attendance || [])
+        setMarks(val.results || {})
+        setHomework(val.homework || [])
+        setNotices(val.notices || [])
+        setFeeStats(val.feeStats || { collected: 0, pending: 0, overdue: 0, total: 2500000 })
+      }
     }
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
-  }, [])
+  }, [currentSession])
 
   // 3. Update Helpers
   const updateStudents = useCallback((newData) => {
     setStudents(newData)
-    localStorage.setItem('nms_students', JSON.stringify(newData))
+    localStorage.setItem(`nms_students_${currentSession}`, JSON.stringify(newData))
+  }, [currentSession])
+
+  const updateStaff = useCallback((newData) => {
+    setStaff(newData)
+    localStorage.setItem('nms_staff', JSON.stringify(newData))
   }, [])
 
   const updateAttendance = useCallback((newData) => {
     setAttendance(newData)
-    localStorage.setItem('nms_global_attendance', JSON.stringify(newData))
-  }, [])
+    const store = getSessionStore(currentSession)
+    saveSessionStore(currentSession, { ...store, attendance: newData })
+  }, [currentSession])
 
   const updateMarks = useCallback((newData) => {
     setMarks(newData)
-    localStorage.setItem('nms_exam_marks', JSON.stringify(newData))
-  }, [])
+    const store = getSessionStore(currentSession)
+    saveSessionStore(currentSession, { ...store, results: newData })
+  }, [currentSession])
 
   const updateHomework = useCallback((newData) => {
     setHomework(newData)
-    localStorage.setItem('nms_homework', JSON.stringify(newData))
-  }, [])
+    const store = getSessionStore(currentSession)
+    saveSessionStore(currentSession, { ...store, homework: newData })
+  }, [currentSession])
+
+  const updateNotices = useCallback((newData) => {
+    setNotices(newData)
+    const store = getSessionStore(currentSession)
+    saveSessionStore(currentSession, { ...store, notices: newData })
+  }, [currentSession])
+
+  const updateFeeStats = useCallback((newData) => {
+    setFeeStats(newData)
+    const store = getSessionStore(currentSession)
+    saveSessionStore(currentSession, { ...store, feeStats: newData })
+  }, [currentSession])
 
   const updateHolidays = useCallback((newData) => {
     setHolidays(newData)
     localStorage.setItem('nms_holidays', JSON.stringify(newData))
   }, [])
 
+  const updateExpenses = useCallback((newData) => {
+    setGeneralExpenses(newData)
+    localStorage.setItem(`nms_expenses_${currentSession}`, JSON.stringify(newData))
+  }, [currentSession])
+
+  const updateFleetLogs = useCallback((newData) => {
+    setFleetLogs(newData)
+    localStorage.setItem(`nms_fleet_logs_${currentSession}`, JSON.stringify(newData))
+  }, [currentSession])
+
+  const updateVehicles = useCallback((newData) => {
+    setVehicles(newData)
+    localStorage.setItem('nms_vehicles', JSON.stringify(newData))
+  }, [])
+
   const value = {
     students, updateStudents,
+    staff, updateStaff,
     attendance, updateAttendance,
     marks, updateMarks,
     homework, updateHomework,
-    holidays, updateHolidays
+    notices, updateNotices,
+    feeStats, updateFeeStats,
+    holidays, updateHolidays,
+    generalExpenses, updateExpenses,
+    fleetLogs, updateFleetLogs,
+    vehicles, updateVehicles,
+    transportRoutes, updateTransportRoutes: (d) => { localStorage.setItem(`nms_transport_${currentSession}`, JSON.stringify(d)); setTransportRoutes(d) },
+    refreshData
   }
 
   return (

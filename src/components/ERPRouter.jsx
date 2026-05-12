@@ -4,6 +4,7 @@ import DashboardLayout from '../components/DashboardLayout'
 import AdminDashboard from '../pages/erp/AdminDashboard'
 import TeacherDashboard from '../pages/erp/TeacherDashboard'
 import StudentDashboard from '../pages/erp/StudentDashboard'
+import ExpensesPage from '../pages/erp/ExpensesPage'
 
 /* Wrapper: redirects to login if not authenticated */
 export function ProtectedRoute({ children }) {

@@ -51,48 +51,17 @@ const INITIAL_CONTENT = {
     },
     googleSheetUrl: ''
   },
-  results: [
-    { year: '2025', class: 'Class X', name: 'Aarav Sharma', score: '98.4%', image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80' },
-    { year: '2025', class: 'Class X', name: 'Priya Singh', score: '97.8%', image: 'https://images.unsplash.com/photo-1594186166098-816403db9b03?auto=format&fit=crop&q=80' },
-    { year: '2025', class: 'Class XII', name: 'Rohit Kumar', score: '97.6%', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80' },
-    { year: '2025', class: 'Class XII', name: 'Sneha Gupta', score: '96.8%', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80' }
-  ],
+  results: [],
   gallery: {
     title: 'Life at New Morning Star',
-    images: [
-      { url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80', caption: 'School Annual Function', category: 'Cultural' },
-      { url: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80', caption: 'Science Fair 2025', category: 'Academic' },
-      { url: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80', caption: 'Sports Meet', category: 'Sports' }
-    ]
+    images: []
   },
   calendar: [
-    { month: 'April', events: 'New Session Begins, Orientation Day, Earth Day Celebration' },
-    { month: 'May', events: 'Summer Camp, Unit Test I, Mother\'s Day Celebration' },
-    { month: 'June', events: 'Summer Vacation, Environment Day Activities' },
-    { month: 'July', events: 'Session Resumes, Van Mahotsav, Inter-house Quiz' },
-    { month: 'August', events: 'Independence Day, Raksha Bandhan, Half Yearly Preparation' },
-    { month: 'September', events: 'Half Yearly Exams, Teacher\'s Day, Hindi Diwas' },
-    { month: 'October', events: 'Gandhi Jayanti, Dussehra Break, Science Exhibition' },
-    { month: 'November', events: 'Diwali Break, Children\'s Day, Unit Test II' },
-    { month: 'December', events: 'Annual Day, Christmas Celebration, Winter Break' },
-    { month: 'January', events: 'Republic Day, Pre-Board Exams (X), Sports Day' },
-    { month: 'February', events: 'Board Exams Begin, Annual Exams Preparation' },
-    { month: 'March', events: 'Annual Examinations, Result Declaration, Session Ends' },
+    { month: 'April', events: 'New Academic Session Begins' },
+    { month: 'May', events: 'Summer Vacation' },
+    { month: 'July', events: 'School Reopens' },
   ],
-  faculty: [
-    { name: 'Dr. Sunita Sharma', role: 'Principal', qual: 'M.Ed., Ph.D. (Education)', exp: '25 years', dept: 'Administration', image: '' },
-    { name: 'Mr. Rajesh Gupta', role: 'Vice Principal', qual: 'M.A., B.Ed.', exp: '20 years', dept: 'English', image: '' },
-    { name: 'Mrs. Priya Mehta', role: 'Head of Science', qual: 'M.Sc. (Physics), B.Ed.', exp: '18 years', dept: 'Physics', image: '' },
-    { name: 'Mr. Arun Singh', role: 'Senior Teacher', qual: 'M.Sc. (Chemistry), B.Ed.', exp: '15 years', dept: 'Chemistry', image: '' },
-    { name: 'Mrs. Kavita Joshi', role: 'Senior Teacher', qual: 'M.Sc. (Biology), B.Ed.', exp: '14 years', dept: 'Biology', image: '' },
-    { name: 'Mr. Sunil Kumar', role: 'Head of Mathematics', qual: 'M.Sc. (Math), B.Ed.', exp: '16 years', dept: 'Mathematics', image: '' },
-    { name: 'Mrs. Neha Verma', role: 'Head of English', qual: 'M.A. (English), B.Ed.', exp: '12 years', dept: 'English', image: '' },
-    { name: 'Mr. Deepak Yadav', role: 'Computer Teacher', qual: 'MCA, B.Ed.', exp: '10 years', dept: 'Computer Science', image: '' },
-    { name: 'Mrs. Anita Rani', role: 'Hindi Teacher', qual: 'M.A. (Hindi), B.Ed.', exp: '13 years', dept: 'Hindi', image: '' },
-    { name: 'Mr. Vikram Chauhan', role: 'Physical Education', qual: 'M.P.Ed.', exp: '11 years', dept: 'Sports', image: '' },
-    { name: 'Mrs. Shalini Gupta', role: 'Art Teacher', qual: 'BFA, B.Ed.', exp: '9 years', dept: 'Art & Craft', image: '' },
-    { name: 'Ms. Ritu Sharma', role: 'Music Teacher', qual: 'M.A. (Music)', exp: '8 years', dept: 'Music', image: '' },
-  ],
+  faculty: [],
   contact: {
     address: 'Near Main Road, Subhash Nagar, New Delhi - 110027',
     phone: '+91 11 2345 6789, +91 98765 43210',
@@ -102,6 +71,48 @@ const INITIAL_CONTENT = {
     instagram: 'https://instagram.com/newmorningstar',
     twitter: 'https://twitter.com/newmorningstar',
     youtube: 'https://youtube.com/@newmorningstar'
+  },
+  mandatoryDisclosure: {
+    general: [
+      { label: 'Name of the School', value: 'New Morning Star Public School' },
+      { label: 'Affiliation No.', value: '2730XXX' },
+      { label: 'School Code', value: 'XXXXX' },
+      { label: 'Address', value: 'Near Main Road, Subhash Nagar, New Delhi - 110027' },
+      { label: 'State', value: 'Delhi' },
+      { label: 'District', value: 'West Delhi' },
+      { label: 'Pin Code', value: '110027' },
+      { label: 'Phone', value: '+91 11 2345 6789' },
+      { label: 'Email', value: 'info@newmorningstar.edu.in' },
+      { label: 'Website', value: 'www.newmorningstar.edu.in' },
+      { label: 'Year of Establishment', value: '1995' },
+      { label: 'Status of Affiliation', value: 'Permanent / Regular' },
+      { label: 'Affiliation Period', value: '2023 to 2028' },
+    ],
+    trust: [
+      { label: 'Name of Trust/Society', value: 'Morning Star Educational Trust' },
+      { label: 'Registration No.', value: 'DL/XXX/1995' },
+      { label: 'Date of Registration', value: '15-01-1995' },
+      { label: 'Members of Trust', value: 'Mr. R.K. Sharma (Chairman), Mrs. S. Sharma (Secretary), Mr. A. Kumar (Treasurer)' },
+    ],
+    certificates: [
+      { label: 'NOC from State Government', value: 'Obtained - DL/EDU/NOC/1995/XXX', file: '' },
+      { label: 'Recognition Certificate', value: 'Valid - RE/DEL/1995/XXX', file: '' },
+      { label: 'Building Safety Certificate', value: 'Valid till 2028', file: '' },
+      { label: 'Fire Safety Certificate', value: 'Valid till 2027', file: '' },
+      { label: 'DEO Certificate', value: 'Obtained', file: '' },
+      { label: 'Water & Sanitation Certificate', value: 'Valid - Health Dept. Certified', file: '' },
+      { label: 'Health & Hygiene Certificate', value: 'Valid till 2027', file: '' },
+    ],
+    infrastructure: [
+      { label: 'Total Campus Area', value: '2 Acres' },
+      { label: 'Built-up Area', value: '25,000 sq. ft.' },
+      { label: 'Number of Classrooms', value: '45' },
+      { label: 'Smart Classrooms', value: '30' },
+      { label: 'Science Labs', value: '4 (Physics, Chemistry, Biology, Computer)' },
+      { label: 'Library', value: '1 (12,000+ books)' },
+      { label: 'Playground', value: '1 Acre' },
+      { label: 'Auditorium', value: '1 (400 seats)' },
+    ]
   }
 }
 
@@ -121,6 +132,7 @@ export function CmsProvider({ children }) {
         contact: { ...INITIAL_CONTENT.contact, ...(parsed.contact || {}) },
         admissions: { ...INITIAL_CONTENT.admissions, ...(parsed.admissions || {}) },
         gallery: { ...INITIAL_CONTENT.gallery, ...(parsed.gallery || {}) },
+        mandatoryDisclosure: { ...INITIAL_CONTENT.mandatoryDisclosure, ...(parsed.mandatoryDisclosure || {}) },
         calendar: parsed.calendar || INITIAL_CONTENT.calendar,
         faculty: parsed.faculty || INITIAL_CONTENT.faculty,
         results: parsed.results || INITIAL_CONTENT.results

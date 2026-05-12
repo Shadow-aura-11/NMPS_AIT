@@ -16,6 +16,9 @@ export default function IDCardDesigner() {
     }
   })
 
+  // Fetch Global Branding Config
+  const certConfig = JSON.parse(localStorage.getItem('nms_cert_config') || '{"bgImage":null, "logoImage":null, "signImage":null, "qrImage":null}')
+
   const saveConfig = () => {
     localStorage.setItem('nms_id_config', JSON.stringify(config))
     alert('ID Card Design Saved!')
@@ -102,6 +105,7 @@ export default function IDCardDesigner() {
               flexDirection: 'column',
               justifyContent: 'center'
             }}>
+              {certConfig.logoImage && <img src={certConfig.logoImage} style={{ height: 40, objectFit: 'contain', margin: '0 auto 5px' }} />}
               <div style={{ fontSize: 14, fontWeight: 900, letterSpacing: 1 }}>{config.schoolName}</div>
               <div style={{ fontSize: 9, opacity: 0.8, marginTop: 4 }}>EXCELLENCE IN EDUCATION</div>
             </div>
@@ -143,11 +147,11 @@ export default function IDCardDesigner() {
 
             {/* Footer with QR and Sign */}
             <div style={{ padding: '0 20px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-              {config.showQr && <div style={{ width: 50, height: 50, background: 'var(--gray-100)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: 'var(--gray-400)' }}>QR</div>}
+              {config.showQr && (certConfig.qrImage ? <img src={certConfig.qrImage} style={{ width: 50, height: 50 }} /> : <div style={{ width: 50, height: 50, background: 'var(--gray-100)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: 'var(--gray-400)' }}>QR</div>)}
               {config.showSign && (
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 16, fontFamily: 'cursive', color: config.themeColor, opacity: 0.6 }}>Principal</div>
-                  <div style={{ borderTop: '1px solid var(--gray-300)', paddingTop: 2, fontSize: 8, fontWeight: 700, textTransform: 'uppercase' }}>Authorized Signatory</div>
+                  {certConfig.signImage ? <img src={certConfig.signImage} style={{ height: 30, objectFit: 'contain' }} /> : <div style={{ fontSize: 16, fontFamily: 'cursive', color: config.themeColor, opacity: 0.6 }}>Principal</div>}
+                  <div style={{ borderTop: certConfig.signImage ? 'none' : '1px solid var(--gray-300)', paddingTop: 2, fontSize: 8, fontWeight: 700, textTransform: 'uppercase' }}>Authorized Signatory</div>
                 </div>
               )}
             </div>

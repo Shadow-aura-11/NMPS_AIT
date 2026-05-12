@@ -200,7 +200,7 @@ export default function Admissions() {
                     <label className="form-label">Class Applied For *</label>
                     <select className="form-select" name="classApplied" required value={formData.classApplied} onChange={handleChange}>
                       <option value="">Select Class</option>
-                      {['PG', 'Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'].map(c => (
+                      {['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'].map(c => (
                         <option key={c} value={c}>Class {c}</option>
                       ))}
                     </select>

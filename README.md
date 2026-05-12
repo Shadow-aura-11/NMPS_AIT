@@ -1,16 +1,29 @@
-# React + Vite
+# New Morning Star Public School - ERP Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Modern School Management Platform built with React 19 and Vite.
 
-Currently, two official plugins are available:
+## 🚀 How to Run
+You can use the **`run.bat`** file in the root directory to launch the portal:
+1. Double-click **`run.bat`**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Manual Commands:
+```bash
+cd React_Version
+npm install
+npm run dev
+```
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🔐 Admin Access
+- **ERP Admin**: `admin` / `admin123`
+- **Web CMS Admin**: `webadmin123` (Password only)
 
-## Expanding the ESLint configuration
+## ✨ Features
+- **Modern SPA**: Fast, responsive, and secure React-based architecture.
+- **Global Academic Session**: Switch school years globally from the admin settings.
+- **Carry-Forward Fees**: Automatic roll-over of unpaid dues across sessions.
+- **CBSE Compliance**: Integrated Mandatory Public Disclosure management.
+- **Academic Control**: Manage exams, marks, and student performance dynamically.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---

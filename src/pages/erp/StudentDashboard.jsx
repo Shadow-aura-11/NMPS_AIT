@@ -1,4 +1,4 @@
-import { useAuth, MOCK_DATA } from '../../context/AuthContext'
+import { useAuth, MOCK_DATA, feeKey, getSessionStore } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import {
   FiClock, FiAward, FiBook, FiCalendar, FiDollarSign,
@@ -7,8 +7,9 @@ import {
 import { Link } from 'react-router-dom'
 
 export default function StudentDashboard() {
-  const { user } = useAuth()
+  const { user, currentSession } = useAuth()
   const { students, attendance: globalAttendance, homework: globalHomework } = useData()
+  const sessionStore = getSessionStore(currentSession)
   
   // Sync profile from global students list
   const profile = students.find(s => s.id === user?.id) || user || {}
@@ -23,7 +24,8 @@ export default function StudentDashboard() {
   const totalDays = studentLogs.length || 1
   const attPct = Math.round((presentDays / totalDays) * 100)
 
-  const studentFees = (MOCK_DATA.studentFees || {})[profile.id] || { total: 40000, paid: 0, discount: 0, remaining: 40000, history: [] }
+  const feeData = JSON.parse(localStorage.getItem(feeKey(currentSession)) || '{}')
+  const studentFees = feeData[profile.id] || { total: 40000, paid: 0, discount: 0, remaining: 40000, history: [] }
   const totalFeesPaid = studentFees.paid
   const pendingHW = globalHomework.filter(h => (h.class === profile.class || h.class === `${profile.class}-${profile.section}`) && (h.status === 'Pending' || h.status === 'Overdue')).length
 
@@ -35,7 +37,8 @@ export default function StudentDashboard() {
   ]
 
   const dayName = new Date().toLocaleDateString('en-US', { weekday: 'long' })
-  const todayTT = MOCK_DATA.timetable[dayName] || MOCK_DATA.timetable['Monday']
+  const timetable = sessionStore.timetable || MOCK_DATA.timetable
+  const todayTT = timetable[dayName] || timetable['Monday'] || []
 
   return (
     <>
@@ -147,7 +150,7 @@ export default function StudentDashboard() {
                 <tr><th>Subject</th><th>Marks</th><th>Grade</th></tr>
               </thead>
               <tbody>
-                {((MOCK_DATA.studentResults[user?.id] || {})['SA1 (Half Yearly)'] || []).map((r, i) => {
+                {(sessionStore.results?.[user?.id]?.['SA1 (Half Yearly)'] || MOCK_DATA.studentResults[user?.id]?.['SA1 (Half Yearly)'] || []).map((r, i) => {
                   const pct = Math.round((r.marks / r.max) * 100)
                   return (
                     <tr key={i}>

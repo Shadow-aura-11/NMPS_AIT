@@ -1,26 +1,27 @@
 import { useState, useMemo } from 'react'
-import { useAuth, MOCK_DATA } from '../../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
-import { FiClock, FiCalendar, FiUsers, FiTrendingUp, FiCheckCircle, FiXCircle, FiAlertCircle, FiChevronLeft, FiChevronRight, FiUser, FiBriefcase } from 'react-icons/fi'
+import { FiClock, FiCalendar, FiUsers, FiTrendingUp, FiCheckCircle, FiXCircle, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 
 export default function AttendancePage() {
   const { user } = useAuth()
   const isAdmin = user?.role === 'admin'
   
-  // Navigation States
-  const [activeTab, setActiveTab] = useState('students') // 'students' or 'staff'
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [selectedClass, setSelectedClass] = useState(null)
   const [selectedSection, setSelectedSection] = useState('A')
-  const [selectedStudent, setSelectedStudent] = useState(null)
-  const [selectedStaff, setSelectedStaff] = useState(null)
   const [viewMonth, setViewMonth] = useState(new Date())
   
   const { students, attendance, holidays, updateHolidays } = useData()
-  const staff = MOCK_DATA.staff
-  const classList = ['PG', 'Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', 'X']
+  const classList = ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
   
-  // Calendar Helpers
+  const formatDate = (date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
   const daysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
   const startDayOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay()
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
@@ -39,26 +40,8 @@ export default function AttendancePage() {
       <div className="dash-page-header">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div className="dash-page-title"><FiCalendar style={{ display: 'inline', marginRight: 8 }} />Attendance & Workforce Explorer</div>
-            <div className="dash-page-subtitle">Track attendance for students and staff with yearly analysis</div>
-          </div>
-          <div style={{ display: 'flex', background: 'var(--gray-100)', padding: 4, borderRadius: 10 }}>
-            <button onClick={() => { setActiveTab('students'); setSelectedClass(null); setSelectedStudent(null); }}
-              style={{ padding: '8px 20px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-                background: activeTab === 'students' ? 'white' : 'transparent',
-                color: activeTab === 'students' ? 'var(--primary-600)' : 'var(--gray-500)',
-                boxShadow: activeTab === 'students' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
-              }}>
-              <FiUsers /> Students
-            </button>
-            <button onClick={() => { setActiveTab('staff'); setSelectedStaff(null); }}
-              style={{ padding: '8px 20px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-                background: activeTab === 'staff' ? 'white' : 'transparent',
-                color: activeTab === 'staff' ? 'var(--primary-600)' : 'var(--gray-500)',
-                boxShadow: activeTab === 'staff' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
-              }}>
-              <FiBriefcase /> Staff
-            </button>
+            <div className="dash-page-title"><FiCalendar style={{ display: 'inline', marginRight: 8 }} />Student Attendance Explorer</div>
+            <div className="dash-page-subtitle">Track and analyze class-wise attendance with yearly history</div>
           </div>
         </div>
       </div>
@@ -85,12 +68,12 @@ export default function AttendancePage() {
                 const isSelected = selectedDate.toDateString() === date.toDateString()
                 const isToday = new Date().toDateString() === date.toDateString()
                 const isFuture = date > new Date()
-                const dateKey = date.toISOString().split('T')[0]
+                const dateKey = formatDate(date)
                 const isHoliday = holidays.includes(dateKey) || date.getDay() === 0
 
                 return (
                   <button key={idx} 
-                    onClick={() => { setSelectedDate(date); setSelectedClass(null); setSelectedStudent(null); setSelectedStaff(null); }}
+                    onClick={() => { setSelectedDate(date); setSelectedClass(null); }}
                     style={{
                       height: 80, border: '1px solid var(--gray-100)', borderRadius: 'var(--radius-lg)', padding: 10, position: 'relative', textAlign: 'left',
                       background: isSelected ? 'var(--primary-50)' : isHoliday ? '#fff1f2' : 'white',
@@ -115,24 +98,24 @@ export default function AttendancePage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--error)' }} /> Holiday / Sunday</div>
               </div>
               {isAdmin && (
-                <button className="btn btn-sm btn-secondary" style={{ color: holidays.includes(selectedDate.toISOString().split('T')[0]) ? 'var(--accent-600)' : 'var(--error)' }}
+                <button className="btn btn-sm btn-secondary" style={{ color: holidays.includes(formatDate(selectedDate)) ? 'var(--accent-600)' : 'var(--error)' }}
                   onClick={() => {
-                    const key = selectedDate.toISOString().split('T')[0]
+                    const key = formatDate(selectedDate)
                     const newHolidays = holidays.includes(key) ? holidays.filter(h => h !== key) : [...holidays, key]
                     updateHolidays(newHolidays)
                   }}>
-                  {holidays.includes(selectedDate.toISOString().split('T')[0]) ? 'Unmark Holiday' : 'Mark as Holiday'}
+                  {holidays.includes(formatDate(selectedDate)) ? 'Unmark Holiday' : 'Mark as Holiday'}
                 </button>
               )}
             </div>
           </div>
         </div>
 
-        {/* Pane 2: Middle Pane (Classes or Staff List) */}
+        {/* Pane 2: Middle Pane (Classes List) */}
         <div className="dash-widget" style={{ overflowY: 'auto' }}>
           <div className="dash-widget-header">
             <span className="dash-widget-title">
-              {activeTab === 'students' ? <><FiUsers /> Classes ({selectedDate.toLocaleDateString()})</> : <><FiBriefcase /> Staff Roster ({selectedDate.toLocaleDateString()})</>}
+              <FiUsers /> Classes ({selectedDate.toLocaleDateString()})
             </span>
           </div>
           <div className="dash-widget-body" style={{ padding: 0 }}>
@@ -141,12 +124,12 @@ export default function AttendancePage() {
                 <FiClock size={48} style={{ opacity: 0.2, marginBottom: 15 }} />
                 <div>Attendance restricted for future dates.</div>
               </div>
-            ) : holidays.includes(selectedDate.toISOString().split('T')[0]) || selectedDate.getDay() === 0 ? (
+            ) : holidays.includes(formatDate(selectedDate)) || selectedDate.getDay() === 0 ? (
               <div style={{ padding: 40, textAlign: 'center', color: 'var(--error)' }}>
                 <FiXCircle size={48} style={{ opacity: 0.2, marginBottom: 15 }} />
                 <div>This date is a Holiday/Sunday.</div>
               </div>
-            ) : activeTab === 'students' ? (
+            ) : (
               <div style={{ padding: '0 20px' }}>
                 <div className="form-group" style={{ margin: '15px 0' }}>
                   <label className="form-label" style={{ fontSize: 10, color: 'var(--gray-400)' }}>SWITCH SECTION</label>
@@ -161,7 +144,7 @@ export default function AttendancePage() {
                 </div>
                 {classList.map(cls => {
                   const classStudents = students.filter(s => s.class === cls && (s.section || 'A') === selectedSection)
-                  const todayKey = selectedDate.toISOString().split('T')[0]
+                  const todayKey = formatDate(selectedDate)
                   const todayLog = (attendance || []).find(l => l.date === todayKey && l.class === cls && l.section === selectedSection)
                   
                   let pct = 0
@@ -172,7 +155,7 @@ export default function AttendancePage() {
 
                   return (
                     <button key={cls} 
-                      onClick={() => { setSelectedClass(cls); setSelectedStudent(null); }}
+                      onClick={() => { setSelectedClass(cls); }}
                       style={{
                         width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '15px 0', border: 'none', borderBottom: '1px solid var(--gray-50)', cursor: 'pointer', textAlign: 'left',
                         background: selectedClass === cls ? 'var(--primary-50)' : 'transparent', transition: 'background 0.2s'
@@ -189,97 +172,36 @@ export default function AttendancePage() {
                   )
                 })}
               </div>
-            ) : (
-              staff.map(s => (
-                <button key={s.id} 
-                  onClick={() => setSelectedStaff(s)}
-                  style={{
-                    width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '15px 20px', border: 'none', borderBottom: '1px solid var(--gray-50)', cursor: 'pointer', textAlign: 'left',
-                    background: selectedStaff?.id === s.id ? 'var(--primary-50)' : 'transparent', transition: 'background 0.2s'
-                  }}>
-                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--gray-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: 'var(--gray-500)' }}>
-                    {s.name[0]}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700 }}>{s.name}</div>
-                    <div style={{ fontSize: 10, color: 'var(--gray-400)' }}>{s.designation}</div>
-                  </div>
-                  <span className={`badge ${s.status === 'Present' ? 'badge-success' : 'badge-error'}`} style={{ fontSize: 9 }}>{s.status}</span>
-                </button>
-              ))
             )}
           </div>
         </div>
 
-        {/* Pane 3: Right Pane (Student List or Staff Detail) */}
+        {/* Pane 3: Right Pane (Student Analysis) */}
         <div className="dash-widget" style={{ overflowY: 'auto' }}>
           <div className="dash-widget-header">
             <span className="dash-widget-title">
-              {activeTab === 'students' ? (selectedClass ? `${selectedClass} Analysis` : 'Analysis') : (selectedStaff ? 'Staff Insight' : 'Workforce Analysis')}
+              {selectedClass ? `${selectedClass} Analysis` : 'Analysis'}
             </span>
           </div>
           <div className="dash-widget-body" style={{ padding: 0 }}>
-              {activeTab === 'students' ? (
-                /* Student Analysis UI (Existing) */
-                !selectedClass ? (
+                {!selectedClass ? (
                   <div style={{ padding: 40, textAlign: 'center', color: 'var(--gray-400)' }}><FiTrendingUp size={48} style={{ opacity: 0.2, marginBottom: 15 }} /><div>Select a class to view analysis</div></div>
                 ) : (
                   students.filter(s => s.class === selectedClass && (s.section || 'A') === selectedSection).map(s => {
-                    const todayKey = selectedDate.toISOString().split('T')[0]
+                    const todayKey = formatDate(selectedDate)
                     const todayLog = (attendance || []).find(l => l.date === todayKey && l.class === selectedClass && l.section === selectedSection)
                     const status = todayLog?.data?.[s.id] || 'N/A'
                     
                     return (
                       <div key={s.id} style={{ padding: '12px 20px', borderBottom: '1px solid var(--gray-50)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ fontSize: 14, fontWeight: 600 }}>{s.name}</div>
-                        <span className={`badge ${status === 'Present' ? 'badge-success' : status === 'Absent' ? 'badge-error' : 'badge-warning'}`} style={{ fontSize: 9 }}>
+                        <span className={`badge ${status === 'Present' ? 'badge-success' : status === 'Absent' ? 'badge-error' : status === 'Late' ? 'badge-warning' : 'badge-secondary'}`} style={{ fontSize: 9 }}>
                           {status}
                         </span>
                       </div>
                     )
                   })
-                )
-             ) : (
-                /* Staff Analysis UI */
-                !selectedStaff ? (
-                  <div style={{ padding: 40, textAlign: 'center', color: 'var(--gray-400)' }}>
-                    <FiTrendingUp size={48} style={{ opacity: 0.2, marginBottom: 15 }} />
-                    <div>Select a staff member to view their attendance trends and leave history</div>
-                  </div>
-                ) : (
-                  <div style={{ padding: 25 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 15, marginBottom: 30 }}>
-                      <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'var(--primary-100)', color: 'var(--primary-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 900 }}>
-                        {selectedStaff.photo ? <img src={selectedStaff.photo} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : selectedStaff.name[0]}
-                      </div>
-                      <div>
-                        <h3 style={{ fontSize: 18, fontWeight: 800 }}>{selectedStaff.name}</h3>
-                        <div style={{ fontSize: 12, color: 'var(--gray-400)' }}>{selectedStaff.dept} | {selectedStaff.id}</div>
-                      </div>
-                    </div>
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 15, marginBottom: 25 }}>
-                      <div style={{ padding: 15, background: 'var(--gray-50)', borderRadius: 12, textAlign: 'center' }}>
-                        <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--primary-600)' }}>98%</div>
-                        <div style={{ fontSize: 10, color: 'var(--gray-400)', textTransform: 'uppercase', marginTop: 4 }}>Monthly Attendance</div>
-                      </div>
-                      <div style={{ padding: 15, background: 'var(--gray-50)', borderRadius: 12, textAlign: 'center' }}>
-                        <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--accent-600)' }}>2</div>
-                        <div style={{ fontSize: 10, color: 'var(--gray-400)', textTransform: 'uppercase', marginTop: 4 }}>Leaves (Apr)</div>
-                      </div>
-                    </div>
-
-                    <h4 style={{ fontSize: 12, fontWeight: 800, color: 'var(--gray-400)', textTransform: 'uppercase', marginBottom: 15 }}>Attendance Log</h4>
-                    {MOCK_DATA.attendanceLog.slice(0, 5).map((a, i) => (
-                      <div key={i} style={{ padding: '12px 15px', background: 'var(--gray-50)', borderRadius: 10, marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ fontSize: 13, fontWeight: 600 }}>{a.date}</div>
-                        <span className="badge badge-success">{a.status}</span>
-                      </div>
-                    ))}
-                    <button className="btn btn-primary w-full" style={{ marginTop: 20 }}><FiTrendingUp /> Full Leave Report</button>
-                  </div>
-                )
-             )}
+                )}
           </div>
         </div>
       </div>

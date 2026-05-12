@@ -1,15 +1,16 @@
 import { useState } from 'react'
-import { useAuth, MOCK_DATA } from '../../context/AuthContext'
-import { FiUser, FiSearch, FiPlus, FiEdit2, FiTrash2, FiX, FiSave, FiPhone, FiMail, FiFileText, FiUpload, FiTrash, FiPrinter, FiShield } from 'react-icons/fi'
+import { useAuth } from '../../context/AuthContext'
+import { useData } from '../../context/DataContext'
+import { exportToCSV } from '../../utils/exportUtils'
+import { FiUser, FiSearch, FiPlus, FiEdit2, FiTrash2, FiX, FiSave, FiPhone, FiMail, FiFileText, FiUpload, FiTrash, FiPrinter, FiShield, FiDownload } from 'react-icons/fi'
 
 export default function StaffPage() {
   const { user } = useAuth()
-  const [staff, setStaff] = useState(() => {
-    const s = localStorage.getItem('nms_staff'); return s ? JSON.parse(s) : MOCK_DATA.staff
-  })
+  const { staff, updateStaff } = useData()
   const [search, setSearch] = useState('')
   const [modal, setModal] = useState(null)
   const [printStaff, setPrintStaff] = useState(null)
+  const [docName, setDocName] = useState('')
   
   const [editData, setEditData] = useState({
     id:'', name:'', dept:'', designation:'Teacher', status:'Present', phone:'',
@@ -21,7 +22,6 @@ export default function StaffPage() {
   const [customDesignation, setCustomDesignation] = useState(false)
   const idConfig = JSON.parse(localStorage.getItem('nms_id_config') || '{"schoolName":"NEW MORNING STAR PUBLIC SCHOOL","themeColor":"#4f46e5","textColor":"#ffffff","showQr":true,"showSign":true,"cardType":"vertical","borderRadius":12,"headerHeight":60}')
 
-  const save = d => { localStorage.setItem('nms_staff', JSON.stringify(d)); setStaff(d) }
   const filtered = staff.filter(s => 
     s.name.toLowerCase().includes(search.toLowerCase()) || 
     s.dept.toLowerCase().includes(search.toLowerCase()) ||
@@ -57,7 +57,14 @@ export default function StaffPage() {
   const handleSave = () => {
     if(!editData.name.trim()) return
     const updated = modal === 'add' ? [...staff, editData] : staff.map(s => s.id === editData.id ? editData : s)
-    save(updated); setModal(null)
+    updateStaff(updated)
+    setModal(null)
+  }
+
+  const handleExport = () => {
+    // Exclude heavy binary data like photos and documents from CSV
+    const exportData = filtered.map(({ photo, documents, ...rest }) => rest)
+    exportToCSV(exportData, `Staff_Directory_${new Date().toLocaleDateString()}.csv`)
   }
 
   const handlePhotoUpload = (e) => {
@@ -91,7 +98,7 @@ export default function StaffPage() {
   }
 
   const toggleStatus = id => {
-    save(staff.map(s => s.id === id ? {...s, status: s.status === 'Present' ? 'On Leave' : 'Present'} : s))
+    updateStaff(staff.map(s => s.id === id ? {...s, status: s.status === 'Present' ? 'On Leave' : 'Present'} : s))
   }
 
   const designations = ['Principal', 'Vice Principal', 'Teacher', 'Accountant', 'Clerk', 'Librarian', 'Lab Asst.', 'Driver', 'Conductor', 'Peon', 'Security Guard', 'Other']
@@ -104,6 +111,7 @@ export default function StaffPage() {
           <div className="dash-page-subtitle">{staff.length} staff members | {staff.filter(s=>s.status==='Present').length} present today</div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
+          {user?.role==='admin' && <button className="btn btn-secondary" onClick={handleExport}><FiDownload /> Export CSV</button>}
           {user?.role==='admin' && <button className="btn btn-secondary" onClick={() => window.location.href='/erp/id-card-design'}><FiShield /> Design ID Cards</button>}
           {user?.role==='admin' && <button className="btn btn-primary" onClick={openAdd}><FiPlus/> Add Staff</button>}
         </div>
@@ -145,7 +153,7 @@ export default function StaffPage() {
                     <div style={{display:'flex',gap:4}}>
                       <button className="btn btn-sm btn-secondary" style={{padding:'4px 8px'}} onClick={() => openEdit(s)}><FiEdit2 size={12}/></button>
                       <button className="btn btn-sm btn-secondary" style={{padding:'4px 8px'}} onClick={() => setPrintStaff(s)}><FiPrinter size={12}/></button>
-                      {user?.role==='admin' && <button className="btn btn-sm" style={{padding:'4px 8px',background:'#fef2f2',color:'var(--error)'}} onClick={() => save(staff.filter(st => st.id !== s.id))}><FiTrash2 size={12}/></button>}
+                      {user?.role==='admin' && <button className="btn btn-sm" style={{padding:'4px 8px',background:'#fef2f2',color:'var(--error)'}} onClick={() => updateStaff(staff.filter(st => st.id !== s.id))}><FiTrash2 size={12}/></button>}
                     </div>
                   </td>
                 </tr>
@@ -289,8 +297,18 @@ export default function StaffPage() {
       <style>{`
         @media print {
           body * { visibility: hidden; }
-          #staff-id-card, #staff-id-card * { visibility: visible; }
-          #staff-id-card { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border: none !important; }
+          #staff-id-card, #staff-id-card * { 
+            visibility: visible; 
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          #staff-id-card { 
+            position: absolute; 
+            left: 50%; 
+            top: 50%; 
+            transform: translate(-50%, -50%); 
+            border: none !important; 
+          }
         }
       `}</style>
     </div>

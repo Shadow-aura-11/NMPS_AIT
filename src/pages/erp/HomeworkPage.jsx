@@ -1,24 +1,21 @@
 import { useState } from 'react'
-import { useAuth, MOCK_DATA } from '../../context/AuthContext'
+import { useAuth, MOCK_DATA, getSessionStore, saveSessionStore } from '../../context/AuthContext'
+import { useData } from '../../context/DataContext'
 import { FiBook, FiPlus, FiCheckCircle, FiAlertCircle, FiClock, FiFileText, FiSave, FiX } from 'react-icons/fi'
 
 export default function HomeworkPage() {
-  const { user } = useAuth()
-  const [homework, setHomework] = useState(() => {
-    const s = localStorage.getItem('nms_homework');
-    return s ? JSON.parse(s) : MOCK_DATA.homework
-  })
+  const { user, currentSession } = useAuth()
+  const { homework, updateHomework } = useData()
+  
   const [modal, setModal] = useState(false)
   const [newHw, setNewHw] = useState({ title: '', subject: 'Mathematics', class: '10th-A', due: '', desc: '' })
   
-  const allAvailableClasses = ['PG', 'Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', 'X']
+  const allAvailableClasses = ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
   const allSubjects = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Hindi', 'Social Sc.', 'Computer', 'Sanskrit', 'Drawing']
   const isTeacher = user?.role === 'teacher'
   const isAdmin = user?.role === 'admin'
   const isStudent = user?.role === 'student'
   const isParent = user?.role === 'parent'
-
-  const save = d => { localStorage.setItem('nms_homework', JSON.stringify(d)); setHomework(d) }
 
   const handleSave = (e) => {
     e.preventDefault()
@@ -31,14 +28,14 @@ export default function HomeworkPage() {
       due: newHw.due,
       status: 'Pending'
     }
-    save([entry, ...homework])
+    updateHomework([entry, ...homework])
     setModal(false)
     setNewHw({ title: '', subject: 'Mathematics', class: '10th-A', due: '', desc: '' })
   }
 
   const toggleStatus = (id) => {
     if (!isStudent && !isParent) return
-    save(homework.map(h => h.id === id ? { ...h, status: h.status === 'Submitted' ? 'Pending' : 'Submitted' } : h))
+    updateHomework(homework.map(h => h.id === id ? { ...h, status: h.status === 'Submitted' ? 'Pending' : 'Submitted' } : h))
   }
 
   return (

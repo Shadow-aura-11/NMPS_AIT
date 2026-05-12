@@ -14,32 +14,7 @@ import {
 } from 'react-icons/fa'
 import './Home.css'
 
-const heroSlides = [
-  {
-    title: 'Nurturing Minds,\nShaping Futures',
-    subtitle: 'CBSE Affiliated School of Excellence',
-    desc: 'Where every child discovers their potential through holistic education, innovative learning, and nurturing mentorship.',
-    cta: `Apply for ${content?.session || '2026-27'}`,
-    ctaLink: '/admissions',
-    image: 'linear-gradient(135deg, #1a56db 0%, #0f172a 100%)',
-  },
-  {
-    title: 'World-Class\nInfrastructure',
-    subtitle: 'State of the Art Facilities',
-    desc: 'Smart classrooms, science labs, sports facilities, and digital learning platforms for 21st century education.',
-    cta: 'Explore Campus',
-    ctaLink: '/about#infrastructure',
-    image: 'linear-gradient(135deg, #047857 0%, #064e3b 100%)',
-  },
-  {
-    title: 'Excellence in\nAcademics & Beyond',
-    subtitle: '100% Board Results',
-    desc: 'Consistently outstanding results in CBSE examinations with students excelling in sports, arts, and co-curricular activities.',
-    cta: 'View Results',
-    ctaLink: '/student-corner#results',
-    image: 'linear-gradient(135deg, #b45309 0%, #78350f 100%)',
-  },
-]
+// heroSlides is defined inside the component (below) to access CMS content
 
 const stats = [
   { value: '25+', label: 'Years of Excellence', icon: <FiAward /> },
@@ -99,13 +74,41 @@ const events = [
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [activeTestimonial, setActiveTestimonial] = useState(0)
+  const { content } = useCms()
+
+  const heroSlides = [
+    {
+      title: 'Nurturing Minds,\nShaping Futures',
+      subtitle: 'CBSE Affiliated School of Excellence',
+      desc: 'Where every child discovers their potential through holistic education, innovative learning, and nurturing mentorship.',
+      cta: `Apply for ${content?.session || '2026-27'}`,
+      ctaLink: '/admissions',
+      image: 'linear-gradient(135deg, #1a56db 0%, #0f172a 100%)',
+    },
+    {
+      title: 'World-Class\nInfrastructure',
+      subtitle: 'State of the Art Facilities',
+      desc: 'Smart classrooms, science labs, sports facilities, and digital learning platforms for 21st century education.',
+      cta: 'Explore Campus',
+      ctaLink: '/about#infrastructure',
+      image: 'linear-gradient(135deg, #047857 0%, #064e3b 100%)',
+    },
+    {
+      title: 'Excellence in\nAcademics & Beyond',
+      subtitle: '100% Board Results',
+      desc: 'Consistently outstanding results in CBSE examinations with students excelling in sports, arts, and co-curricular activities.',
+      cta: 'View Results',
+      ctaLink: '/student-corner#results',
+      image: 'linear-gradient(135deg, #b45309 0%, #78350f 100%)',
+    },
+  ]
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide(prev => (prev + 1) % heroSlides.length)
     }, 6000)
     return () => clearInterval(timer)
-  }, [])
+  }, [heroSlides.length])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -114,7 +117,6 @@ export default function Home() {
     return () => clearInterval(timer)
   }, [])
 
-  const { content } = useCms()
   const slide = heroSlides[currentSlide]
 
   // Use CMS content for the first slide

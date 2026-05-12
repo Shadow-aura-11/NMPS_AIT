@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useAuth, MOCK_DATA } from '../../context/AuthContext'
+import { useAuth, MOCK_DATA, getSessionStore, saveSessionStore } from '../../context/AuthContext'
 import { FiCalendar, FiEdit3, FiSave, FiX, FiPlus, FiFilter, FiDownload, FiInfo } from 'react-icons/fi'
 
 const subColors = { 
@@ -12,18 +12,20 @@ const subColors = {
 const subjects = ['Physics', 'Chemistry', 'Mathematics', 'Biology', 'English', 'Hindi', 'Social Sc.', 'Computer', 'Science', 'EVS', 'PT', 'Games', 'Library', 'Art', 'Music', 'General Knowledge', 'Break']
 
 export default function TimetablePage() {
-  const { user } = useAuth()
+  const { user, currentSession } = useAuth()
   const isAdmin = user?.role === 'admin'
   const isTeacher = user?.role === 'teacher'
   const canEdit = isAdmin || isTeacher
 
-  const [selectedClass, setSelectedClass] = useState('X')
+  const [selectedClass, setSelectedClass] = useState('10th')
   const [selectedSection, setSelectedSection] = useState('-')
   const [isEditing, setIsEditing] = useState(false)
   
   const [timetable, setTimetable] = useState(() => {
-    const saved = localStorage.getItem('nms_timetable')
-    return saved ? JSON.parse(saved) : { 'X-A': { data: MOCK_DATA.timetable, periodCount: MOCK_DATA.periods.length } }
+    const store = getSessionStore(currentSession)
+    return store.timetable && Object.keys(store.timetable).length > 0 
+      ? store.timetable 
+      : { 'X-A': { data: MOCK_DATA.timetable, periodCount: MOCK_DATA.periods.length } }
   })
 
   const [periodCount, setPeriodCount] = useState(7)
@@ -56,7 +58,8 @@ export default function TimetablePage() {
     const classId = `${selectedClass}-${selectedSection}`
     const updated = { ...timetable, [classId]: { data: editForm, periodCount: periodCount } }
     setTimetable(updated)
-    localStorage.setItem('nms_timetable', JSON.stringify(updated))
+    const store = getSessionStore(currentSession)
+    saveSessionStore(currentSession, { ...store, timetable: updated })
     setIsEditing(false)
   }
 
@@ -103,7 +106,7 @@ export default function TimetablePage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 13, color: 'var(--gray-600)' }}>Class:</span>
             <select className="form-select" style={{ width: 100 }} value={selectedClass} onChange={e => { setSelectedClass(e.target.value); setIsEditing(false); }}>
-              {['PG', 'Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'].map(cls => <option key={cls} value={cls}>{cls}</option>)}
+              {['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'].map(cls => <option key={cls} value={cls}>{cls}</option>)}
             </select>
           </div>
 

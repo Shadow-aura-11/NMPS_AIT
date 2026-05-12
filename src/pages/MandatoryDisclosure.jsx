@@ -1,66 +1,14 @@
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
-import { FiCheckCircle, FiAlertCircle } from 'react-icons/fi'
+import { FiCheckCircle, FiAlertCircle, FiDownload } from 'react-icons/fi'
+import { useCms } from '../context/CmsContext'
 import './About.css'
 
-const disclosureData = {
-  general: [
-    { label: 'Name of the School', value: 'New Morning Star Public School' },
-    { label: 'Affiliation No.', value: '2730XXX' },
-    { label: 'School Code', value: 'XXXXX' },
-    { label: 'Address', value: '123, Education Lane, Civil Lines, New Delhi - 110001' },
-    { label: 'State', value: 'Delhi' },
-    { label: 'District', value: 'New Delhi' },
-    { label: 'Pin Code', value: '110001' },
-    { label: 'Phone', value: '+91 98765 43210' },
-    { label: 'Email', value: 'info@newmorningstar.edu.in' },
-    { label: 'Website', value: 'www.newmorningstar.edu.in' },
-    { label: 'Year of Establishment', value: '2001' },
-    { label: 'Status of Affiliation', value: 'Permanent / Regular' },
-    { label: 'Affiliation Period', value: '2023 to 2028' },
-  ],
-  trust: [
-    { label: 'Name of Trust/Society', value: 'Morning Star Educational Trust' },
-    { label: 'Registration No.', value: 'DL/XXX/2001' },
-    { label: 'Date of Registration', value: '15-01-2001' },
-    { label: 'Members of Trust', value: 'Mr. R.K. Sharma (Chairman), Mrs. S. Sharma (Secretary), Mr. A. Kumar (Treasurer)' },
-  ],
-  certificates: [
-    { label: 'NOC from State Government', value: 'Obtained - DL/EDU/NOC/2001/XXX' },
-    { label: 'Recognition Certificate', value: 'Valid - RE/DEL/2001/XXX' },
-    { label: 'Building Safety Certificate', value: 'Valid till 2028' },
-    { label: 'Fire Safety Certificate', value: 'Valid till 2027' },
-    { label: 'DEO Certificate', value: 'Obtained' },
-    { label: 'Water & Sanitation Certificate', value: 'Valid - Health Dept. Certified' },
-    { label: 'Health & Hygiene Certificate', value: 'Valid till 2027' },
-  ],
-  staff: [
-    { category: 'Principal', count: 1, qual: 'Ph.D., M.Ed.' },
-    { category: 'Vice Principal', count: 1, qual: 'M.A., B.Ed.' },
-    { category: 'PGT (Post Graduate Teachers)', count: 30, qual: 'M.A./M.Sc./M.Com., B.Ed.' },
-    { category: 'TGT (Trained Graduate Teachers)', count: 40, qual: 'B.A./B.Sc./B.Com., B.Ed.' },
-    { category: 'PRT (Primary Teachers)', count: 25, qual: 'B.A., D.El.Ed./B.Ed.' },
-    { category: 'Computer Teachers', count: 5, qual: 'MCA/BCA, B.Ed.' },
-    { category: 'Physical Education', count: 3, qual: 'M.P.Ed./B.P.Ed.' },
-    { category: 'Art/Music/Dance', count: 4, qual: 'BFA/M.A. Music' },
-    { category: 'Lab Assistants', count: 4, qual: 'B.Sc.' },
-    { category: 'Administrative Staff', count: 8, qual: 'Various' },
-  ],
-  infrastructure: [
-    { label: 'Total Campus Area', value: '5 Acres' },
-    { label: 'Built-up Area', value: '45,000 sq. ft.' },
-    { label: 'Number of Classrooms', value: '60' },
-    { label: 'Smart Classrooms', value: '45' },
-    { label: 'Science Labs', value: '4 (Physics, Chemistry, Biology, Computer)' },
-    { label: 'Library', value: '1 (15,000+ books)' },
-    { label: 'Playground', value: '2 Acres' },
-    { label: 'Auditorium', value: '1 (500 seats)' },
-    { label: 'Swimming Pool', value: '1 (Semi-Olympic)' },
-    { label: 'Rooms for Co-curricular', value: '6' },
-  ],
-}
-
 export default function MandatoryDisclosure() {
+  const { content } = useCms()
+  const data = content.mandatoryDisclosure
+  const session = content.session
+
   return (
     <>
       <Helmet>
@@ -93,7 +41,7 @@ export default function MandatoryDisclosure() {
             <div className="table-wrapper">
               <table className="table">
                 <tbody>
-                  {disclosureData.general.map((item, i) => (
+                  {(data?.general || []).map((item, i) => (
                     <tr key={i}><td style={{ fontWeight: 600, width: '40%' }}>{item.label}</td><td>{item.value}</td></tr>
                   ))}
                 </tbody>
@@ -109,7 +57,7 @@ export default function MandatoryDisclosure() {
             <div className="table-wrapper">
               <table className="table">
                 <tbody>
-                  {disclosureData.trust.map((item, i) => (
+                  {(data?.trust || []).map((item, i) => (
                     <tr key={i}><td style={{ fontWeight: 600, width: '40%' }}>{item.label}</td><td>{item.value}</td></tr>
                   ))}
                 </tbody>
@@ -125,10 +73,19 @@ export default function MandatoryDisclosure() {
             <div className="table-wrapper">
               <table className="table">
                 <tbody>
-                  {disclosureData.certificates.map((item, i) => (
+                  {(data?.certificates || []).map((item, i) => (
                     <tr key={i}>
                       <td style={{ fontWeight: 600, width: '40%' }}>{item.label}</td>
-                      <td><span className="badge badge-success"><FiCheckCircle size={12} style={{ marginRight: 4 }} />{item.value}</span></td>
+                      <td>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span className="badge badge-success"><FiCheckCircle size={12} style={{ marginRight: 4 }} />{item.value}</span>
+                          {item.file && (
+                            <a href={item.file} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-secondary" style={{ padding: '2px 8px', fontSize: 10 }}>
+                              <FiDownload size={12} /> View PDF
+                            </a>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -139,7 +96,7 @@ export default function MandatoryDisclosure() {
           {/* Staff */}
           <div style={{ marginBottom: 'var(--space-10)' }}>
             <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, marginBottom: 'var(--space-4)', color: 'var(--gray-800)', fontFamily: 'var(--font-display)' }}>
-              D. Staff Details (Qualification-wise)
+              D. Staff Details
             </h2>
             <div className="table-wrapper">
               <table className="table">
@@ -147,17 +104,20 @@ export default function MandatoryDisclosure() {
                   <tr><th>Category</th><th>No. of Staff</th><th>Qualifications</th></tr>
                 </thead>
                 <tbody>
-                  {disclosureData.staff.map((item, i) => (
-                    <tr key={i}>
-                      <td style={{ fontWeight: 600 }}>{item.category}</td>
-                      <td>{item.count}</td>
-                      <td>{item.qual}</td>
+                  {content.faculty && content.faculty.length > 0 ? (
+                    <tr>
+                      <td style={{ fontWeight: 600 }}>Total Teaching Staff</td>
+                      <td>{content.faculty.length}</td>
+                      <td>PGT/TGT/PRT Qualified</td>
                     </tr>
-                  ))}
+                  ) : (
+                    <tr><td colSpan="3">Data not available</td></tr>
+                  )}
+                  {/* Since faculty is dynamic now, we can show a summary or keep the static detailed rows if needed */}
                   <tr style={{ background: 'var(--gray-50)', fontWeight: 700 }}>
-                    <td>Total</td>
-                    <td>{disclosureData.staff.reduce((a, s) => a + s.count, 0)}</td>
-                    <td>-</td>
+                    <td>Status of Principal</td>
+                    <td>1</td>
+                    <td>Ph.D., M.Ed.</td>
                   </tr>
                 </tbody>
               </table>
@@ -172,7 +132,7 @@ export default function MandatoryDisclosure() {
             <div className="table-wrapper">
               <table className="table">
                 <tbody>
-                  {disclosureData.infrastructure.map((item, i) => (
+                  {(data?.infrastructure || []).map((item, i) => (
                     <tr key={i}><td style={{ fontWeight: 600, width: '40%' }}>{item.label}</td><td>{item.value}</td></tr>
                   ))}
                 </tbody>
@@ -183,22 +143,20 @@ export default function MandatoryDisclosure() {
           {/* Fee Structure */}
           <div style={{ marginBottom: 'var(--space-10)' }} id="fees">
             <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, marginBottom: 'var(--space-4)', color: 'var(--gray-800)', fontFamily: 'var(--font-display)' }}>
-              F. Fee Structure (Session 2026-27)
+              F. Fee Structure (Session {session})
             </h2>
             <div className="table-wrapper">
               <table className="table">
                 <thead>
-                  <tr><th>Class</th><th>Admission Fee</th><th>Monthly Tuition</th><th>Annual Charges</th></tr>
+                  <tr>
+                    {content.admissions.fees.headers.map((h, i) => <th key={i}>{h}</th>)}
+                  </tr>
                 </thead>
                 <tbody>
-                  {[
-                    ['Nursery - UKG', '25,000', '3,500', '8,000'],
-                    ['I - V', '30,000', '4,000', '10,000'],
-                    ['VI - VIII', '35,000', '4,500', '12,000'],
-                    ['IX - X', '40,000', '5,000', '14,000'],
-                    ['XI - XII', '45,000', '5,500', '16,000'],
-                  ].map((row, i) => (
-                    <tr key={i}><td style={{ fontWeight: 600 }}>{row[0]}</td><td>&#8377; {row[1]}</td><td>&#8377; {row[2]}</td><td>&#8377; {row[3]}</td></tr>
+                  {content.admissions.fees.rows.map((row, i) => (
+                    <tr key={i}>
+                      {row.map((cell, ci) => <td key={ci} style={ci === 0 ? { fontWeight: 600 } : {}}>&#8377; {cell}</td>)}
+                    </tr>
                   ))}
                 </tbody>
               </table>
@@ -208,20 +166,20 @@ export default function MandatoryDisclosure() {
           {/* Results */}
           <div>
             <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, marginBottom: 'var(--space-4)', color: 'var(--gray-800)', fontFamily: 'var(--font-display)' }}>
-              G. Academic Results (Class X & XII)
+              G. Academic Results Toppers
             </h2>
-            <div className="table-wrapper">
-              <table className="table">
-                <thead>
-                  <tr><th>Year</th><th>Class</th><th>Appeared</th><th>Passed</th><th>Pass %</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td rowSpan={2} style={{ fontWeight: 700 }}>2025</td><td>X</td><td>120</td><td>120</td><td><span className="badge badge-success">100%</span></td></tr>
-                  <tr><td>XII</td><td>95</td><td>95</td><td><span className="badge badge-success">100%</span></td></tr>
-                  <tr><td rowSpan={2} style={{ fontWeight: 700 }}>2024</td><td>X</td><td>115</td><td>115</td><td><span className="badge badge-success">100%</span></td></tr>
-                  <tr><td>XII</td><td>88</td><td>88</td><td><span className="badge badge-success">100%</span></td></tr>
-                </tbody>
-              </table>
+            <div className="grid grid-2" style={{ gap: 'var(--space-4)' }}>
+               {content.results.slice(0, 4).map((r, i) => (
+                 <div key={i} className="card" style={{ display: 'flex', padding: 'var(--space-4)', gap: 'var(--space-4)', alignItems: 'center' }}>
+                   <div style={{ width: 60, height: 60, borderRadius: 'var(--radius-lg)', background: 'var(--primary-50)', overflow: 'hidden' }}>
+                     {r.image ? <img src={r.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-500)', fontWeight: 800 }}>{r.name[0]}</div>}
+                   </div>
+                   <div>
+                     <div style={{ fontWeight: 800, fontSize: 14 }}>{r.name}</div>
+                     <div style={{ fontSize: 11, color: 'var(--gray-500)' }}>{r.year} | {r.class} | <span style={{ color: 'var(--accent-600)', fontWeight: 700 }}>{r.score}</span></div>
+                   </div>
+                 </div>
+               ))}
             </div>
           </div>
         </div>
@@ -229,3 +187,4 @@ export default function MandatoryDisclosure() {
     </>
   )
 }
+

@@ -2,12 +2,13 @@ import { useState, useMemo } from 'react'
 import { useAuth, MOCK_DATA } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import { FiUsers, FiSearch, FiEdit2, FiX, FiCheck, FiUser, FiHome, FiSmartphone, FiCalendar, FiCreditCard, FiFilter, FiSave, FiInfo } from 'react-icons/fi'
+import { formatDate } from '../../utils/exportUtils'
 
 export default function MyClassesPage() {
   const { user } = useAuth()
   
   // Allow selecting from all classes as requested
-  const allAvailableClasses = ['PG', 'Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', 'X']
+  const allAvailableClasses = ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
   
   const [selectedClassRaw, setSelectedClassRaw] = useState('10th-A')
   const [searchTerm, setSearchTerm] = useState('')
@@ -98,7 +99,7 @@ export default function MyClassesPage() {
                     </div>
                     <div>
                       <div style={{ fontWeight: 700 }}>{s.name}</div>
-                      <div style={{ fontSize: 10, color: 'var(--gray-400)' }}>ID: {s.id}</div>
+                      <div style={{ fontSize: 10, color: 'var(--gray-400)' }}>ID: {s.id} | DOB: {formatDate(s.dob)}</div>
                     </div>
                   </div>
                 </td>
@@ -158,7 +159,7 @@ export default function MyClassesPage() {
                     </select>
                   </div>
                   <div className="form-group"><label className="form-label">Roll Number</label><input className="form-input" value={formData.rollNo} onChange={e=>setFormData({...formData, rollNo: e.target.value})} /></div>
-                  <div className="form-group"><label className="form-label">Admission No</label><input className="form-input" value={formData.admissionNo} onChange={e=>setFormData({...formData, admissionNo: e.target.value})} /></div>
+                  <div className="form-group"><label className="form-label">Admission No (Auto)</label><input className="form-input" value={formData.admissionNo} readOnly style={{ background: 'var(--gray-50)', cursor: 'not-allowed' }} /></div>
                   <div className="form-group"><label className="form-label">Blood Group</label><input className="form-input" value={formData.bloodGroup} onChange={e=>setFormData({...formData, bloodGroup: e.target.value})} /></div>
 
                   {/* Part 2: IDs */}

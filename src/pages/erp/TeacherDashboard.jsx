@@ -1,16 +1,26 @@
 import { useState } from 'react'
-import { useAuth, MOCK_DATA } from '../../context/AuthContext'
-import { FiUsers, FiCheckCircle, FiClock, FiBook, FiCalendar, FiSave, FiPlusCircle, FiCheck, FiX } from 'react-icons/fi'
+import { useAuth, MOCK_DATA, getSessionStore, saveSessionStore } from '../../context/AuthContext'
+import { useData } from '../../context/DataContext'
+import { FiUsers, FiCheckCircle, FiClock, FiBook, FiCalendar, FiSave, FiPlusCircle, FiCheck, FiX, FiDollarSign } from 'react-icons/fi'
 
 export default function TeacherDashboard() {
-  const { user } = useAuth()
+  const { user, currentSession } = useAuth()
   const [selectedClass, setSelectedClass] = useState('X-A')
+  
+  // Load live timetable data
+  const liveTimetable = getSessionStore(currentSession).timetable || {}
+  const primaryClass = user?.assignedClasses?.[0] || 'X-A'
+  const classSchedule = (liveTimetable[primaryClass]?.data) || MOCK_DATA.timetable
+  const todayDay = new Date().toLocaleDateString('en-US', { weekday: 'long' })
+  const todaySchedule = classSchedule[todayDay] || classSchedule['Monday'] || []
+
   const [attendanceMarked, setAttendanceMarked] = useState({})
   const [attendanceSaved, setAttendanceSaved] = useState(false)
   const [hwForm, setHwForm] = useState({ subject: 'Physics', title: '', dueDate: '', description: '' })
   const [hwSubmitted, setHwSubmitted] = useState(false)
 
-  const classStudents = MOCK_DATA.students.filter(s => s.class === selectedClass)
+  const { students } = useData()
+  const classStudents = students.filter(s => s.class === selectedClass)
   const classes = user?.assignedClasses || ['X-A', 'X-B', 'IX-A', 'XI-Sci']
   const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 
@@ -20,8 +30,18 @@ export default function TeacherDashboard() {
   }
 
   const saveAttendance = () => {
+    const store = getSessionStore(currentSession)
+    const newLog = {
+      date: new Date().toISOString().split('T')[0],
+      class: selectedClass.split('-')[0],
+      section: selectedClass.split('-')[1] || 'A',
+      data: attendanceMarked
+    }
+    const updated = [newLog, ...(store.attendance || [])]
+    saveSessionStore(currentSession, { ...store, attendance: updated })
     setAttendanceSaved(true)
     setTimeout(() => setAttendanceSaved(false), 3000)
+    window.location.reload() // Trigger re-sync across app
   }
 
   const submitHomework = (e) => {
@@ -60,6 +80,23 @@ export default function TeacherDashboard() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* QUICK ACTIONS */}
+      <div className="dash-widget" style={{ marginBottom: 'var(--space-6)', padding: '20px' }}>
+        <div className="dash-widget-title" style={{ marginBottom: '15px' }}>Quick Actions</div>
+        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+          <button className="btn btn-primary" onClick={() => window.location.href='/erp/students?action=add'}>
+            <FiPlusCircle /> Add New Student
+          </button>
+          <button className="btn btn-secondary" onClick={() => window.location.href='/erp/students'}>
+            <FiUsers /> Student Directory
+          </button>
+          <button className="btn btn-secondary" style={{ background: 'var(--accent-50)', color: 'var(--accent-700)', border: '1px solid var(--accent-200)' }} 
+            onClick={() => window.location.href='/erp/fees'}>
+            <FiDollarSign /> Collect Fees
+          </button>
+        </div>
       </div>
 
       <div className="dash-widget-row">
@@ -184,16 +221,15 @@ export default function TeacherDashboard() {
         </div>
       </div>
 
-      {/* Timetable Widget */}
       <div className="dash-widget" style={{ marginTop: 'var(--space-5)' }}>
         <div className="dash-widget-header">
-          <span className="dash-widget-title"><FiCalendar /> Today's Schedule ({new Date().toLocaleDateString('en-US', { weekday: 'long' })})</span>
+          <span className="dash-widget-title"><FiCalendar /> Today's Schedule ({todayDay}) - {primaryClass}</span>
         </div>
         <div className="dash-widget-body">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 'var(--space-3)' }}>
-            {(MOCK_DATA.timetable[new Date().toLocaleDateString('en-US', { weekday: 'long' })] || MOCK_DATA.timetable['Monday']).map((sub, i) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 'var(--space-3)' }}>
+            {todaySchedule.map((sub, i) => (
               <div key={i} style={{ padding: 'var(--space-3)', background: sub === user?.subject ? 'var(--primary-50)' : 'var(--gray-50)', border: sub === user?.subject ? '2px solid var(--primary-300)' : '1px solid var(--gray-200)', borderRadius: 'var(--radius-lg)', textAlign: 'center' }}>
-                <div style={{ fontSize: '10px', color: 'var(--gray-400)', marginBottom: 2 }}>{MOCK_DATA.periods[i]}</div>
+                <div style={{ fontSize: '10px', color: 'var(--gray-400)', marginBottom: 2 }}>Period {i + 1}</div>
                 <div style={{ fontSize: 'var(--text-sm)', fontWeight: sub === user?.subject ? 700 : 500, color: sub === user?.subject ? 'var(--primary-600)' : 'var(--gray-600)' }}>{sub}</div>
               </div>
             ))}

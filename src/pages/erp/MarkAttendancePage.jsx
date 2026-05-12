@@ -13,8 +13,15 @@ export default function MarkAttendancePage() {
   const [localAttendance, setLocalAttendance] = useState({}) // { studentId: 'Present' | 'Absent' | 'Late' }
   const [savedStatus, setSavedStatus] = useState(false)
 
-  const classes = ['PG', 'Nursery', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
+  const classes = ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
   
+  const formatDate = (date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
   const filteredStudents = students.filter(s => 
     (selectedClass ? s.class === selectedClass : true) && 
     (selectedSection ? (s.section || 'A') === selectedSection : true)
@@ -36,7 +43,7 @@ export default function MarkAttendancePage() {
   }
 
   const handleSave = () => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = formatDate(new Date())
     const record = {
       date: today,
       class: selectedClass,
