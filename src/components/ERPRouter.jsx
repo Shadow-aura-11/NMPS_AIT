@@ -8,19 +8,32 @@ import ExpensesPage from '../pages/erp/ExpensesPage'
 
 /* Wrapper: redirects to login if not authenticated */
 export function ProtectedRoute({ children }) {
+<<<<<<< HEAD
   const { user } = useAuth()
   if (!user) return <Navigate to="/erp" replace />
+=======
+  const { user, school } = useAuth()
+  if (!user) return <Navigate to={`/${school.key}/erp`} replace />
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   return <DashboardLayout>{children}</DashboardLayout>
 }
 
 /* Renders the correct dashboard based on user role */
 export function RoleDashboard() {
+<<<<<<< HEAD
   const { user } = useAuth()
+=======
+  const { user, school } = useAuth()
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   switch (user?.role) {
     case 'admin': return <AdminDashboard />
     case 'teacher': return <TeacherDashboard />
     case 'student': return <StudentDashboard />
+<<<<<<< HEAD
     default: return <Navigate to="/erp" replace />
+=======
+    default: return <Navigate to={`/${school.key}/erp`} replace />
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   }
 }
 

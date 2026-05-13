@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth, MOCK_DATA } from '../../context/AuthContext'
+<<<<<<< HEAD
 import { FiLayout, FiPlus, FiUsers, FiEdit2, FiTrash2, FiSave, FiX, FiInfo } from 'react-icons/fi'
 
 export default function ClassesPage() {
@@ -8,14 +9,27 @@ export default function ClassesPage() {
     const saved = localStorage.getItem('nms_classes')
     return saved ? JSON.parse(saved) : MOCK_DATA.classesAndSections
   })
+=======
+import { FiLayout, FiPlus, FiUsers, FiEdit2, FiTrash2, FiSave, FiX, FiInfo, FiTruck } from 'react-icons/fi'
+import { useData } from '../../context/DataContext'
+
+export default function ClassesPage() {
+  const { user } = useAuth()
+  const { classes = [], updateClasses } = useData() || {}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
   const [addModal, setAddModal] = useState(false)
   const [newClass, setNewClass] = useState({ name: '', sections: [{ name: 'A', teacher: '' }] })
 
   const handleSave = () => {
+<<<<<<< HEAD
     const updated = [...classes, { class: newClass.name, sections: newClass.sections }]
     setClasses(updated)
     localStorage.setItem('nms_classes', JSON.stringify(updated))
+=======
+    const updated = [...classes, { class: newClass.name, sections: newClass.sections, subjects: ['English', 'Hindi', 'Mathematics', 'Science', 'Social Sc.'] }]
+    updateClasses(updated)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     setAddModal(false)
     setNewClass({ name: '', sections: [{ name: 'A', teacher: '' }] })
   }
@@ -23,8 +37,12 @@ export default function ClassesPage() {
   const deleteClass = (idx) => {
     if (window.confirm('Are you sure you want to delete this class?')) {
       const updated = classes.filter((_, i) => i !== idx)
+<<<<<<< HEAD
       setClasses(updated)
       localStorage.setItem('nms_classes', JSON.stringify(updated))
+=======
+      updateClasses(updated)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     }
   }
 

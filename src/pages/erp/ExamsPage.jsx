@@ -1,6 +1,11 @@
 import { useState, useMemo, useEffect } from 'react'
+<<<<<<< HEAD
 import { useNavigate } from 'react-router-dom'
 import { useAuth, MOCK_DATA } from '../../context/AuthContext'
+=======
+import { useAuth, MOCK_DATA } from '../../context/AuthContext'
+import { useNavigate, useParams } from 'react-router-dom'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 import { useData } from '../../context/DataContext'
 import { exportToCSV } from '../../utils/exportUtils'
 import { generatePDF } from '../../utils/pdfUtils'
@@ -9,7 +14,12 @@ import { FiAward, FiCheckCircle, FiEdit3, FiSave, FiX, FiFilter, FiTrendingUp, F
 export default function ExamsPage() {
   const { user, currentSession } = useAuth()
   const navigate = useNavigate()
+<<<<<<< HEAD
   const { marks: marksData, updateMarks, students = [], globalClasses: contextClasses = [] } = useData() || {}
+=======
+  const { schoolId } = useParams()
+  const { marks: marksData, updateMarks, students = [], classes: erpClasses = [] } = useData() || {}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const isAdmin = user?.role === 'admin'
   const isTeacher = user?.role === 'teacher'
   const isStudent = user?.role === 'student'
@@ -24,6 +34,7 @@ export default function ExamsPage() {
 
   // Dynamic Exam Settings
   const examTypes = useMemo(() => {
+<<<<<<< HEAD
     const saved = localStorage.getItem(`nms_exam_types_${currentSession}`)
     return saved ? JSON.parse(saved) : ['FA1', 'FA2', 'SA1', 'FA3', 'FA4', 'SA2']
   }, [currentSession])
@@ -32,6 +43,21 @@ export default function ExamsPage() {
     const saved = localStorage.getItem(`nms_exam_config_${currentSession}`)
     return saved ? JSON.parse(saved) : {}
   }, [currentSession])
+=======
+    const saved = localStorage.getItem(`erp_${schoolId}_exam_types_${currentSession}`)
+    return saved ? JSON.parse(saved) : ['FA1', 'FA2', 'SA1', 'FA3', 'FA4', 'SA2']
+  }, [currentSession, schoolId])
+
+  const examConfig = useMemo(() => {
+    const saved = localStorage.getItem(`erp_${schoolId}_exam_config_${currentSession}`)
+    return saved ? JSON.parse(saved) : {}
+  }, [currentSession, schoolId])
+
+  const certConfig = useMemo(() => {
+    const saved = localStorage.getItem(`erp_${schoolId}_cert_config`)
+    return saved ? JSON.parse(saved) : { schoolName: 'NEW MORNING STAR PUBLIC SCHOOL', address: 'Main Road, Sector 4, City - 123456' }
+  }, [schoolId])
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
   useEffect(() => {
     if (examTypes.length > 0 && !selectedExam) setSelectedExam(examTypes[0])
@@ -41,11 +67,20 @@ export default function ExamsPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [editBuffer, setEditBuffer] = useState({}) // studentId -> subject -> mark
 
+<<<<<<< HEAD
   // Use DataContext classes (real-time) with localStorage as fallback
   const globalClasses = contextClasses.length > 0 ? contextClasses
     : JSON.parse(localStorage.getItem(`nms_classes_${currentSession}`) || localStorage.getItem('nms_classes') || '[]')
 
   const classes = globalClasses.length > 0 ? globalClasses.map(c => c.class) : ['PG', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
+=======
+  // Derived Data
+  const globalClasses = useMemo(() => {
+    return JSON.parse(localStorage.getItem(`erp_${schoolId}_classes_${currentSession}`) || localStorage.getItem(`erp_${schoolId}_classes`) || '[]')
+  }, [currentSession, schoolId])
+
+  const classes = globalClasses.length > 0 ? globalClasses.map(c => c.class) : (erpClasses.length > 0 ? erpClasses.map(c => c.class) : ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'])
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const selectedClassObj = globalClasses.find(c => c.class === selectedClass)
   const sections = ['-', ...(selectedClassObj ? selectedClassObj.sections.map(s => s.name) : ['A', 'B', 'C', 'D'])]
   const subjects = selectedClassObj?.subjects || ['English', 'Hindi', 'Mathematics', 'Science', 'Social Sc.']
@@ -138,7 +173,11 @@ export default function ExamsPage() {
                 <FiDownload /> Export Marks
               </button>
               {isAdmin && (
+<<<<<<< HEAD
                 <button className="btn btn-secondary btn-sm" onClick={() => navigate('/erp/certificate-design')}>
+=======
+                <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/${schoolId}/erp/certificate-design`)}>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                   <FiLayout /> Design Certificate
                 </button>
               )}
@@ -280,11 +319,20 @@ export default function ExamsPage() {
               </div>
             </div>
             
+<<<<<<< HEAD
             <div id="report-card-printable" style={{ padding: 40, border: '10px solid var(--primary-600)', minHeight: 800 }}>
               {/* This mimics the CertificateDesigner layout */}
               <div style={{ textAlign: 'center', marginBottom: 30 }}>
                 <h1 style={{ fontSize: 26, fontWeight: 900, color: 'var(--primary-800)' }}>NEW MORNING STAR PUBLIC SCHOOL</h1>
                 <p style={{ fontSize: 12, color: 'var(--gray-500)' }}>Main Road, Sector 4, City - 123456</p>
+=======
+            <div id="report-card-printable" style={{ padding: 40, border: '10px solid var(--primary-600)', minHeight: 800, background: certConfig.bgImage ? `url(${certConfig.bgImage}) no-repeat center/100% 100%` : 'white' }}>
+              <div style={{ textAlign: 'center', marginBottom: 30 }}>
+                {certConfig.logoImage && <img src={certConfig.logoImage} style={{ height: 60, marginBottom: 10 }} />}
+                <h1 style={{ fontSize: 32, fontWeight: 900, color: 'var(--primary-800)', textTransform: 'uppercase' }}>{certConfig.schoolName || 'NEW MORNING STAR PUBLIC SCHOOL'}</h1>
+                <p style={{ fontSize: 14, color: 'var(--gray-600)' }}>{certConfig.affiliation || 'Affiliated to CBSE'}</p>
+                <p style={{ fontSize: 12, color: 'var(--gray-500)' }}>{certConfig.established ? `(${certConfig.established}) | ` : ''}{certConfig.address} | Email: {certConfig.email} | Phone: {certConfig.phone}</p>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                 <div style={{ borderBottom: '2px solid var(--primary-100)', margin: '15px 0' }} />
                 <h2 style={{ fontSize: 18, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>{selectedExam} Report Card</h2>
               </div>
@@ -338,8 +386,16 @@ export default function ExamsPage() {
               </table>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 100 }}>
+<<<<<<< HEAD
                 <div style={{ textAlign: 'center', borderTop: '1px solid var(--gray-300)', paddingTop: 5, width: 150 }}>Class Teacher</div>
                 <div style={{ textAlign: 'center', borderTop: '1px solid var(--gray-300)', paddingTop: 5, width: 150 }}>Principal</div>
+=======
+                <div style={{ textAlign: 'center', borderTop: '1px solid var(--gray-300)', paddingTop: 5, width: 150, fontSize: 12, fontWeight: 700 }}>Class Teacher</div>
+                <div style={{ textAlign: 'center', width: 150 }}>
+                  {certConfig.signImage && <img src={certConfig.signImage} style={{ height: 40, marginBottom: 5 }} />}
+                  <div style={{ borderTop: certConfig.signImage ? 'none' : '1px solid var(--gray-300)', paddingTop: 5, fontSize: 12, fontWeight: 700 }}>Principal</div>
+                </div>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
               </div>
             </div>
           </div>

@@ -1,5 +1,9 @@
 import { useState } from 'react'
+<<<<<<< HEAD
 import { useNavigate } from 'react-router-dom'
+=======
+import { useNavigate, useParams } from 'react-router-dom'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 import { useAuth, MOCK_DATA, getSessionStore, saveSessionStore } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import { FiUsers, FiCheckCircle, FiClock, FiBook, FiCalendar, FiSave, FiPlusCircle, FiCheck, FiX, FiDollarSign } from 'react-icons/fi'
@@ -7,6 +11,10 @@ import { FiUsers, FiCheckCircle, FiClock, FiBook, FiCalendar, FiSave, FiPlusCirc
 export default function TeacherDashboard() {
   const { user, currentSession } = useAuth()
   const navigate = useNavigate()
+<<<<<<< HEAD
+=======
+  const { schoolId } = useParams()
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const [selectedClass, setSelectedClass] = useState('X-A')
   
   // Load live timetable data
@@ -88,6 +96,7 @@ export default function TeacherDashboard() {
       <div className="dash-widget" style={{ marginBottom: 'var(--space-6)', padding: '20px' }}>
         <div className="dash-widget-title" style={{ marginBottom: '15px' }}>Quick Actions</div>
         <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+<<<<<<< HEAD
           <button className="btn btn-primary" onClick={() => navigate('/erp/students?action=add')}>
             <FiPlusCircle /> Add New Student
           </button>
@@ -96,6 +105,16 @@ export default function TeacherDashboard() {
           </button>
           <button className="btn btn-secondary" style={{ background: 'var(--accent-50)', color: 'var(--accent-700)', border: '1px solid var(--accent-200)' }} 
             onClick={() => navigate('/erp/fees')}>
+=======
+          <button className="btn btn-primary" onClick={() => navigate(`/${schoolId}/erp/students?action=add`)}>
+            <FiPlusCircle /> Add New Student
+          </button>
+          <button className="btn btn-secondary" onClick={() => navigate(`/${schoolId}/erp/students`)}>
+            <FiUsers /> Student Directory
+          </button>
+          <button className="btn btn-secondary" style={{ background: 'var(--accent-50)', color: 'var(--accent-700)', border: '1px solid var(--accent-200)' }} 
+            onClick={() => navigate(`/${schoolId}/erp/fees`)}>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
             <FiDollarSign /> Collect Fees
           </button>
         </div>

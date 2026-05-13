@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react'
+<<<<<<< HEAD
 import { useLocation, useNavigate } from 'react-router-dom'
+=======
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 import { useAuth, MOCK_DATA, feeKey, dataKey } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import { FiUsers, FiPlus, FiSearch, FiEdit2, FiTrash2, FiX, FiCheck, FiFilter, FiUser, FiHome, FiSmartphone, FiCalendar, FiCreditCard, FiDollarSign, FiClock, FiPrinter, FiShield, FiBriefcase, FiHeart, FiMapPin, FiActivity, FiArrowRight, FiDownload, FiFileText, FiRefreshCw, FiPaperclip, FiFile } from 'react-icons/fi'
@@ -10,11 +14,19 @@ export default function StudentsPage() {
   const { user, currentSession, sessions } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+<<<<<<< HEAD
   const isAdmin = user?.role === 'admin'
   const isTeacher = user?.role === 'teacher'
   
   const { students = [], updateStudents, refreshData, globalClasses = [] } = useData() || {}
   const classList = globalClasses.map(c => c.class)
+=======
+  const { schoolId } = useParams()
+  const isAdmin = user?.role === 'admin'
+  const isTeacher = user?.role === 'teacher'
+  
+  const { students = [], updateStudents, refreshData, classes: globalClasses = [] } = useData() || {}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
   const syncStudents = () => {
     if (!window.confirm(`Standardize student metadata for the CURRENT session (${currentSession})?`)) return
@@ -39,11 +51,27 @@ export default function StudentsPage() {
   const [promoteModal, setPromoteModal] = useState(false)
   const [targetSession, setTargetSession] = useState('')
   const [targetClass, setTargetClass] = useState('')
+<<<<<<< HEAD
   const idConfig = JSON.parse(localStorage.getItem('nms_id_config') || '{"schoolName":"NEW MORNING STAR PUBLIC SCHOOL","themeColor":"#4f46e5","textColor":"#ffffff","showQr":true,"showSign":true,"cardType":"vertical","borderRadius":12,"headerHeight":60}')
   
   const transportRoutes = JSON.parse(localStorage.getItem(`nms_transport_${currentSession}`) || localStorage.getItem('nms_transport') || '[]')
   const globalFeeConfig = JSON.parse(localStorage.getItem('nms_global_fee_config') || '{"classFees":{},"transportFees":{}}')
   const certConfig = JSON.parse(localStorage.getItem('nms_cert_config') || '{"bgImage":null, "logoImage":null, "signImage":null, "qrImage":null, "contentMarginTop": 0, "showLogo": true, "showSign": true}')
+=======
+  const certConfig = JSON.parse(localStorage.getItem(`erp_${schoolId}_cert_config`) || '{"schoolName":"NEW MORNING STAR PUBLIC SCHOOL", "address":"Subhash Nagar, New Delhi", "phone":"+91 98765 43210", "email":"info@nmsps.edu.in", "bgImage":null, "logoImage":null, "signImage":null, "qrImage":null, "contentMarginTop": 0, "showLogo": true, "showSign": true, "themeColor": "#4f46e5", "idCardFormat": "Modern"}')
+  const idConfig = {
+    schoolName: certConfig.schoolName,
+    themeColor: certConfig.themeColor || '#4f46e5',
+    textColor: '#ffffff',
+    showQr: !!certConfig.qrImage,
+    showSign: certConfig.showSign,
+    cardType: certConfig.idCardFormat === 'Modern' ? 'vertical' : 'horizontal',
+    borderRadius: 12,
+    headerHeight: 60
+  }
+  const transportRoutes = JSON.parse(localStorage.getItem(`erp_${schoolId}_transport_${currentSession}`) || localStorage.getItem(`erp_${schoolId}_transport`) || '[]')
+  const globalFeeConfig = JSON.parse(localStorage.getItem(`erp_${schoolId}_global_fee_config`) || '{"classFees":{},"transportFees":{}}')
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
   const getStudentSubjects = (studentClass) => {
     const cls = globalClasses.find(c => c.class === studentClass)
@@ -73,6 +101,11 @@ export default function StudentsPage() {
     // Personal
     dob: '', gender: 'Male', bloodGroup: '', religion: '', nationality: 'Indian', category: 'General', 
     photo: null,
+<<<<<<< HEAD
+=======
+    // Credentials
+    username: '', password: '',
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     // Health & Transport
     allergies: '', medicalConditions: '', height: '', weight: '', transportRoute: 'None', transportStop: '',
     // Previous School
@@ -80,8 +113,12 @@ export default function StudentsPage() {
     // Personal Details
     birthMark: '',
     // Documents
+<<<<<<< HEAD
     documents: [], // Array of { name: '', file: base64 }
     loginUsername: '', loginPassword: ''
+=======
+    documents: [] // Array of { name: '', file: base64 }
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   }
 
   const [formData, setFormData] = useState(initialFormData)
@@ -100,6 +137,7 @@ export default function StudentsPage() {
   const handleSave = (e) => {
     e.preventDefault()
     const finalData = { ...formData, phone: formData.phone || formData.fatherPhone }
+<<<<<<< HEAD
     const { loginUsername, loginPassword, ...studentData } = finalData;
     
     const dynamicUsers = JSON.parse(localStorage.getItem('nms_dynamic_users') || '[]')
@@ -146,6 +184,30 @@ export default function StudentsPage() {
       refreshData()
 
       alert(`🎉 Registration Successful!\n\nCredentials sent to ${formData.phone}:\nUsername: ${loginUsername}\nPassword: ${loginPassword}\nWebsite: https://newmorningstar.edu.in/erp`)
+=======
+    
+    if (selectedStudent) {
+      const updated = students.map(s => s.id === selectedStudent.id ? { ...s, ...finalData } : s)
+      updateStudents(updated)
+    } else {
+      const counterKey = `erp_${schoolId}_stu_id_counter`
+      const nextIdNum = parseInt(localStorage.getItem(counterKey) || '0') + 1
+      const newId = `STU${String(nextIdNum).padStart(3, '0')}`
+      localStorage.setItem(counterKey, nextIdNum.toString())
+      
+      const newStudent = { 
+        ...finalData, 
+        id: newId, 
+        admissionNo: newId, 
+        attendance: 100,
+        // Use provided credentials or auto-generate
+        username: formData.username || (formData.name.split(' ')[0] + newId).toLowerCase(),
+        password: formData.password || Math.random().toString(36).slice(-8)
+      }
+      
+      updateStudents([...students, newStudent])
+      refreshData()
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     }
     setModalOpen(false)
   }
@@ -182,6 +244,7 @@ export default function StudentsPage() {
 
   const openEdit = (s) => {
     setSelectedStudent(s)
+<<<<<<< HEAD
     const dynamicUsers = JSON.parse(localStorage.getItem('nms_dynamic_users') || '[]')
     const userCred = dynamicUsers.find(u => u.id === s.id)
     setFormData({ 
@@ -190,11 +253,15 @@ export default function StudentsPage() {
       loginUsername: userCred ? userCred.username : '',
       loginPassword: userCred ? userCred.password : ''
     })
+=======
+    setFormData({ ...initialFormData, ...s })
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     setModalOpen(true)
   }
 
   const openAdd = () => {
     setSelectedStudent(null)
+<<<<<<< HEAD
     const nextIdNum = parseInt(localStorage.getItem('nms_stu_id_counter') || '0') + 1
     const nextId = `STU${String(nextIdNum).padStart(3, '0')}`
     setFormData({ 
@@ -204,11 +271,20 @@ export default function StudentsPage() {
       loginUsername: `stu${nextIdNum}`,
       loginPassword: Math.random().toString(36).slice(-8)
     })
+=======
+    const nextIdNum = parseInt(localStorage.getItem(`erp_${schoolId}_stu_id_counter`) || '0') + 1
+    const nextId = `STU${String(nextIdNum).padStart(3, '0')}`
+    setFormData({ ...initialFormData, admissionNo: nextId, admissionDate: new Date().toISOString().split('T')[0] })
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     setModalOpen(true)
   }
 
   const getFeeRecordsForSession = () => {
+<<<<<<< HEAD
     const stored = localStorage.getItem(`nms_fees_${currentSession}`)
+=======
+    const stored = localStorage.getItem(`erp_${schoolId}_fees_${currentSession}`)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     return stored ? JSON.parse(stored) : {}
   }
 
@@ -230,6 +306,7 @@ export default function StudentsPage() {
     updateStudents(updated)
     refreshData()
     
+<<<<<<< HEAD
     // Clean up login credentials
     const dynamicUsers = JSON.parse(localStorage.getItem('nms_dynamic_users') || '[]')
     const updatedUsers = dynamicUsers.filter(u => u.id !== id)
@@ -237,6 +314,12 @@ export default function StudentsPage() {
     
     // Clean up session-specific fees if needed (Optional: keeping for audit might be better, but user asked for delete)
     const feeKey = `nms_fees_${currentSession}`
+=======
+    // Clean up login access is automatic now since it's stored in the student object
+    
+    // Clean up session-specific fees if needed
+    const feeKey = `erp_${schoolId}_fees_${currentSession}`
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     const currentFees = JSON.parse(localStorage.getItem(feeKey) || '{}')
     if (currentFees[id]) {
       delete currentFees[id]
@@ -254,7 +337,11 @@ export default function StudentsPage() {
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             {isAdmin && selectedIds.length > 0 && <button className="btn btn-primary" style={{ background: 'var(--accent-600)' }} onClick={() => setPromoteModal(true)}><FiArrowRight /> Promote {selectedIds.length} Students</button>}
+<<<<<<< HEAD
             {isAdmin && <button className="btn btn-secondary" onClick={() => navigate('/erp/id-card-design')}><FiShield /> Design ID Cards</button>}
+=======
+            {isAdmin && <button className="btn btn-secondary" onClick={() => navigate(`/${schoolId}/erp/id-card-design`)}><FiShield /> Design ID Cards</button>}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
             {isAdmin && <button className="btn btn-secondary" onClick={syncStudents} title="Standardize names and IDs for current session"><FiRefreshCw /> Sync Data</button>}
             <button className="btn btn-secondary" onClick={handleExport}><FiDownload /> Export CSV</button>
             <button className="btn btn-primary" onClick={openAdd}><FiPlus /> Add New Student</button>
@@ -269,7 +356,11 @@ export default function StudentsPage() {
         </div>
         <select className="form-select" style={{ width: 150 }} value={filterClass} onChange={e => setFilterClass(e.target.value)}>
           <option value="">All Classes</option>
+<<<<<<< HEAD
           {classList.map(c => <option key={c} value={c}>Class {c}</option>)}
+=======
+          {globalClasses.map(c => <option key={c.class} value={c.class}>Class {c.class}</option>)}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
         </select>
       </div>
 
@@ -467,6 +558,23 @@ export default function StudentsPage() {
                   )}
                 </div>
               </div>
+<<<<<<< HEAD
+=======
+
+              {/* Section 8: Portal Credentials (Admin Only) */}
+              {isAdmin && (
+                <div className="detail-section" style={{ background: 'var(--accent-50)', border: '1px solid var(--accent-100)' }}>
+                  <h4 className="section-title" style={{ color: 'var(--accent-800)' }}><FiShield /> Portal Access</h4>
+                  <div className="detail-grid">
+                    <div className="detail-item"><label>Username</label><span style={{ fontWeight: 800, color: 'var(--accent-700)' }}>{selectedStudent.username || 'Not Set'}</span></div>
+                    <div className="detail-item"><label>Password</label><span style={{ fontWeight: 800, color: 'var(--accent-700)' }}>{selectedStudent.password || 'Not Set'}</span></div>
+                  </div>
+                  <button className="btn btn-primary btn-sm w-full" style={{ marginTop: 15, background: 'var(--accent-600)', border: 'none' }} onClick={() => openEdit(selectedStudent)}>
+                    Change Credentials
+                  </button>
+                </div>
+              )}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
             </div>
           </div>
         </div>
@@ -502,14 +610,25 @@ export default function StudentsPage() {
                     <div className="form-grid">
                       <div className="form-group"><label>Full Name *</label><input className="form-input" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} /></div>
                       <div className="form-group"><label>Class *</label>
+<<<<<<< HEAD
                         <select className="form-select" required value={formData.class} onChange={e => setFormData({ ...formData, class: e.target.value })}>
                           <option value="">Select</option>
                           {classList.map(c => <option key={c} value={c}>{c}</option>)}
+=======
+                        <select className="form-select" value={formData.class} onChange={e => setFormData({...formData, class: e.target.value})}>
+                          {globalClasses.map(c => <option key={c.class} value={c.class}>{c.class}</option>)}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                         </select>
                       </div>
                       <div className="form-group"><label>Section</label>
                         <select className="form-select" value={formData.section} onChange={e => setFormData({...formData, section: e.target.value})}>
+<<<<<<< HEAD
                           {['A', 'B', 'C', 'D'].map(s => <option key={s} value={s}>{s}</option>)}
+=======
+                          {globalClasses.find(c => c.class === formData.class)?.sections?.map(s => (
+                            <option key={s.name} value={s.name}>{s.name}</option>
+                          )) || <option value="A">A</option>}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                         </select>
                       </div>
                       <div className="form-group"><label>Student ID {selectedStudent ? '' : '(Auto)'}</label><input className="form-input" value={formData.admissionNo} readOnly={!selectedStudent} style={selectedStudent ? {} : { background: 'var(--gray-50)', cursor: 'not-allowed' }} /></div>
@@ -518,6 +637,7 @@ export default function StudentsPage() {
                     </div>
                   </div>
 
+<<<<<<< HEAD
                   {/* Part 1b: Portal Login Credentials */}
                   <div className="form-row-group">
                     <h5 className="form-sub-title">Portal Login Credentials</h5>
@@ -529,6 +649,21 @@ export default function StudentsPage() {
                       <div className="form-group">
                         <label>Login Password *</label>
                         <input className="form-input" required value={formData.loginPassword} onChange={e => setFormData({...formData, loginPassword: e.target.value})} />
+=======
+                  {/* Part 1.5: Portal Credentials */}
+                  <div className="form-row-group">
+                    <h5 className="form-sub-title">1.5 Portal Access Credentials</h5>
+                    <div className="form-grid">
+                      <div className="form-group">
+                        <label>Portal Username</label>
+                        <input className="form-input" placeholder="e.g. john_stu001" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
+                        <div style={{fontSize: 10, color: 'var(--gray-400)', marginTop: 4}}>Leave blank for auto-generation</div>
+                      </div>
+                      <div className="form-group">
+                        <label>Portal Password</label>
+                        <input className="form-input" placeholder="Enter secure password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
+                        <div style={{fontSize: 10, color: 'var(--gray-400)', marginTop: 4}}>Leave blank for auto-generation</div>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                       </div>
                     </div>
                   </div>
@@ -583,7 +718,11 @@ export default function StudentsPage() {
                           <option value="">Select Route...</option>
                           <option value="None">None (Self)</option>
                           {transportRoutes.map(tr => (
+<<<<<<< HEAD
                             <option key={tr.route} value={tr.route}>{tr.route} (Bus {tr.bus})</option>
+=======
+                            <option key={tr.route} value={tr.route}>{tr.route} ({tr.vehicle})</option>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                           ))}
                         </select>
                       </div>
@@ -666,9 +805,21 @@ export default function StudentsPage() {
               textAlign:'center', boxShadow:'0 20px 40px rgba(0,0,0,0.2)',
               display: 'flex', flexDirection: 'column'
             }}>
+<<<<<<< HEAD
                <div style={{background:idConfig.themeColor, color:'white', padding:'20px 15px'}}>
                  <div style={{fontSize:14, fontWeight:900, letterSpacing:1}}>{idConfig.schoolName}</div>
                  <div style={{fontSize:9, marginTop:5, background:'white', color:idConfig.themeColor, display:'inline-block', padding:'2px 10px', borderRadius:100, fontWeight:800}}>STUDENT IDENTITY CARD</div>
+=======
+               <div style={{background:idConfig.themeColor, color:'white', padding:'15px'}}>
+                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                   {certConfig.logoImage && <img src={certConfig.logoImage} style={{ height: 35, width: 35, objectFit: 'contain' }} />}
+                   <div style={{fontSize:14, fontWeight:900, letterSpacing:0.5, lineHeight: 1.2, textAlign: 'left'}}>
+                     <div>{idConfig.schoolName}</div>
+                     <div style={{ fontSize: 7, fontWeight: 500, opacity: 0.8 }}>{certConfig.affiliation}</div>
+                   </div>
+                 </div>
+                 <div style={{fontSize:8, marginTop:8, background:'white', color:idConfig.themeColor, display:'inline-block', padding:'2px 10px', borderRadius:100, fontWeight:800}}>STUDENT IDENTITY CARD</div>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                </div>
                
                <div style={{padding:25, display:'flex', flexDirection: idConfig.cardType === 'vertical' ? 'column' : 'row', alignItems:'center', gap:20, flex:1}}>
@@ -727,15 +878,24 @@ export default function StudentsPage() {
                   <div style={{ textAlign: 'center', marginBottom: 30 }}>
                     {certConfig.showLogo && certConfig.logoImage && <img src={certConfig.logoImage} style={{ width: 80, height: 80, objectFit: 'contain', margin: '0 auto 15px', display: 'block' }} />}
                     <h1 style={{ fontSize: 32, fontWeight: 900, color: 'var(--primary-800)', textTransform: 'uppercase' }}>{certConfig.schoolName || 'NEW MORNING STAR PUBLIC SCHOOL'}</h1>
+<<<<<<< HEAD
                     <p style={{ fontSize: 14, color: 'var(--gray-600)' }}>Affiliated to Central Board of Secondary Education (CBSE)</p>
                     <p style={{ fontSize: 12, color: 'var(--gray-500)' }}>{certConfig.address || 'Subhash Nagar, New Delhi - 110027 | Email: info@nmsps.edu.in'}</p>
+=======
+                    <p style={{ fontSize: 14, color: 'var(--gray-600)' }}>{certConfig.affiliation || 'Affiliated to CBSE'}</p>
+                    <p style={{ fontSize: 12, color: 'var(--gray-500)' }}>{certConfig.established ? `(${certConfig.established}) | ` : ''}{certConfig.address} | Email: {certConfig.email} | Phone: {certConfig.phone}</p>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                     <div style={{ borderBottom: '2px solid var(--primary-600)', margin: '15px 0' }} />
                     <h2 style={{ fontSize: 24, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 2, display: 'inline-block', border: '2px solid var(--primary-800)', padding: '5px 20px', borderRadius: 4 }}>TRANSFER CERTIFICATE</h2>
                   </div>
                 )}
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 30, fontSize: 14, fontWeight: 600 }}>
+<<<<<<< HEAD
                   <div>TC No: <span style={{ textDecoration: 'underline' }}>{Math.floor(Math.random() * 10000)}/2026</span></div>
+=======
+                  <div>TC No: <span style={{ textDecoration: 'underline' }}>{Math.floor(Math.random() * 10000) + "/2026"}</span></div>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                   <div>Student ID: <span style={{ textDecoration: 'underline' }}>{printTCStudent.id}</span></div>
                   <div>Date: <span style={{ textDecoration: 'underline' }}>{new Date().toLocaleDateString()}</span></div>
                 </div>
@@ -840,7 +1000,11 @@ export default function StudentsPage() {
               <label className="form-label">Promote to Class (Next Stage)</label>
               <select className="form-select" value={targetClass} onChange={e => setTargetClass(e.target.value)}>
                 <option value="">Auto (Next Class)</option>
+<<<<<<< HEAD
                 {classList.map(c => <option key={c} value={c}>{c}</option>)}
+=======
+                {globalClasses.map(c => <option key={c.class} value={c.class}>Class {c.class}</option>)}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
               </select>
             </div>
 
@@ -852,7 +1016,15 @@ export default function StudentsPage() {
 
             <button className="btn btn-primary w-full" onClick={() => {
               if (!targetSession) return alert('Please select target session')
+<<<<<<< HEAD
               const nextClassMap = Object.fromEntries(classList.map((c, i) => [c, classList[i + 1] || 'ALUMNI']))
+=======
+              const nextClassMap = {}
+              globalClasses.forEach((c, idx) => {
+                if (idx < globalClasses.length - 1) nextClassMap[c.class] = globalClasses[idx+1].class
+                else nextClassMap[c.class] = 'ALUMNI'
+              })
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
               const currentFees = JSON.parse(localStorage.getItem(feeKey(currentSession)) || '{}')
               const nextFees = JSON.parse(localStorage.getItem(feeKey(targetSession)) || '{}')
               
@@ -882,13 +1054,21 @@ export default function StudentsPage() {
                 }
               })
 
+<<<<<<< HEAD
               const existingNextSession = JSON.parse(localStorage.getItem(`nms_students_${targetSession}`) || '[]')
+=======
+              const existingNextSession = JSON.parse(localStorage.getItem(`erp_${schoolId}_students_${targetSession}`) || '[]')
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
               const updatedNextSession = [...existingNextSession, ...promotedStudents]
               
               // Remove duplicates by ID
               const uniqueUpdated = Array.from(new Map(updatedNextSession.map(item => [item.id, item])).values())
               
+<<<<<<< HEAD
               localStorage.setItem(`nms_students_${targetSession}`, JSON.stringify(uniqueUpdated))
+=======
+              localStorage.setItem(`erp_${schoolId}_students_${targetSession}`, JSON.stringify(uniqueUpdated))
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
               localStorage.setItem(feeKey(targetSession), JSON.stringify(nextFees))
               alert(`Successfully promoted ${selectedIds.length} students to Session ${targetSession}`)
               setPromoteModal(false)

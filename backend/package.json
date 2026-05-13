@@ -4,9 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+<<<<<<< HEAD
     "start": "node server.js",
     "dev": "nodemon server.js",
     "init-db": "node init_db.js",
+=======
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,6 +17,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+<<<<<<< HEAD
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -21,5 +25,11 @@
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.22.3",
     "nodemon": "^3.1.14"
+=======
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mysql2": "^3.22.3"
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   }
 }

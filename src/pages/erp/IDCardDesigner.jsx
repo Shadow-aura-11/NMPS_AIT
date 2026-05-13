@@ -1,9 +1,18 @@
 import { useState } from 'react'
 import { FiLayout, FiSave, FiUser, FiSmartphone, FiMapPin, FiPrinter, FiShield, FiSquare } from 'react-icons/fi'
+<<<<<<< HEAD
 
 export default function IDCardDesigner() {
   const [config, setConfig] = useState(() => {
     const saved = localStorage.getItem('nms_id_config')
+=======
+import { useParams } from 'react-router-dom'
+
+export default function IDCardDesigner() {
+  const { schoolId } = useParams()
+  const [config, setConfig] = useState(() => {
+    const saved = localStorage.getItem(`erp_${schoolId}_id_config`)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     return saved ? JSON.parse(saved) : {
       schoolName: 'NEW MORNING STAR PUBLIC SCHOOL',
       themeColor: '#4f46e5',
@@ -17,10 +26,17 @@ export default function IDCardDesigner() {
   })
 
   // Fetch Global Branding Config
+<<<<<<< HEAD
   const certConfig = JSON.parse(localStorage.getItem('nms_cert_config') || '{"bgImage":null, "logoImage":null, "signImage":null, "qrImage":null}')
 
   const saveConfig = () => {
     localStorage.setItem('nms_id_config', JSON.stringify(config))
+=======
+  const certConfig = JSON.parse(localStorage.getItem(`erp_${schoolId}_cert_config`) || '{"bgImage":null, "logoImage":null, "signImage":null, "qrImage":null}')
+
+  const saveConfig = () => {
+    localStorage.setItem(`erp_${schoolId}_id_config`, JSON.stringify(config))
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     alert('ID Card Design Saved!')
   }
 
@@ -43,6 +59,14 @@ export default function IDCardDesigner() {
           <h4 style={{ fontSize: 13, fontWeight: 700, color: 'var(--gray-500)', textTransform: 'uppercase', marginBottom: 20 }}>Style Settings</h4>
           
           <div className="form-group">
+<<<<<<< HEAD
+=======
+            <label className="form-label">School Name</label>
+            <input className="form-input" value={config.schoolName} onChange={e => setConfig({...config, schoolName: e.target.value})} />
+          </div>
+
+          <div className="form-group">
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
             <label className="form-label">Theme Color</label>
             <input type="color" className="form-input" style={{ height: 40, padding: 2 }} value={config.themeColor} onChange={e => setConfig({...config, themeColor: e.target.value})} />
           </div>

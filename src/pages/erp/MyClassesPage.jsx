@@ -8,8 +8,15 @@ export default function MyClassesPage() {
   const { user } = useAuth()
   
   // Allow selecting from all classes as requested
+<<<<<<< HEAD
   const { students, updateStudents, globalClasses = [] } = useData()
   const allAvailableClasses = globalClasses.map(c => c.class)
+=======
+  const { students, updateStudents, classes: erpClasses = [] } = useData()
+  
+  // Allow selecting from all classes as requested
+  const allAvailableClasses = erpClasses.length > 0 ? erpClasses.map(c => c.class) : ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   
   const [selectedClassRaw, setSelectedClassRaw] = useState('10th-A')
   const [searchTerm, setSearchTerm] = useState('')

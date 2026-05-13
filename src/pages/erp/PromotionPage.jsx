@@ -1,14 +1,26 @@
 import { useState, useMemo } from 'react'
 import { useAuth, MOCK_DATA } from '../../context/AuthContext'
+<<<<<<< HEAD
+=======
+import { useParams } from 'react-router-dom'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 import { useData } from '../../context/DataContext'
 import { FiArrowUp, FiFilter, FiUser, FiCheckCircle, FiXCircle, FiSave, FiAlertCircle, FiChevronRight, FiUsers } from 'react-icons/fi'
 import { formatDate } from '../../utils/exportUtils'
 
 export default function PromotionPage() {
+<<<<<<< HEAD
   const { user } = useAuth()
   const isAdmin = user?.role === 'admin'
   
   const { students, updateStudents, globalClasses = [] } = useData()
+=======
+  const { user, currentSession, sessions } = useAuth()
+  const { schoolId } = useParams()
+  const isAdmin = user?.role === 'admin'
+  
+  const { students, updateStudents, classes: erpClasses = [] } = useData()
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
   const [fromClass, setFromClass] = useState('9th')
   const [fromSection, setFromSection] = useState('A')
@@ -19,7 +31,11 @@ export default function PromotionPage() {
   const [promotionResults, setPromotionResults] = useState([]) // Array of {id, action: 'promote' | 'fail'}
   const [destSession, setDestSession] = useState('')
 
+<<<<<<< HEAD
   const classes = globalClasses.map(c => c.class)
+=======
+  const classes = erpClasses.length > 0 ? erpClasses.map(c => c.class) : ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   
   // Initialize destSession to next session if available
   useMemo(() => {
@@ -55,12 +71,21 @@ export default function PromotionPage() {
     if (promotionResults.length === 0) return
     if (!destSession) return alert('Please select a destination session.')
 
+<<<<<<< HEAD
     const destStudentsKey = `nms_students_${destSession}`
     const destFeesKey = `nms_fees_${destSession}`
     
     const targetStudents = JSON.parse(localStorage.getItem(destStudentsKey) || '[]')
     const targetFees = JSON.parse(localStorage.getItem(destFeesKey) || '{}')
     const currentFees = JSON.parse(localStorage.getItem(`nms_fees_${currentSession}`) || '{}')
+=======
+    const destStudentsKey = `erp_${schoolId}_students_${destSession}`
+    const destFeesKey = `erp_${schoolId}_fees_${destSession}`
+    
+    const targetStudents = JSON.parse(localStorage.getItem(destStudentsKey) || '[]')
+    const targetFees = JSON.parse(localStorage.getItem(destFeesKey) || '{}')
+    const currentFees = JSON.parse(localStorage.getItem(`erp_${schoolId}_fees_${currentSession}`) || '{}')
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     
     let promotedCount = 0
 

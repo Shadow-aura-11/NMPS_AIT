@@ -1,16 +1,29 @@
 import { useState } from 'react'
 import { useAuth, MOCK_DATA } from '../../context/AuthContext'
+<<<<<<< HEAD
+=======
+import { useParams } from 'react-router-dom'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 import { FiMessageCircle, FiSend, FiCheckCircle, FiSearch } from 'react-icons/fi'
 
 export default function MessagesPage() {
   const { user } = useAuth()
+<<<<<<< HEAD
   const [messages, setMessages] = useState(() => { const s = localStorage.getItem('nms_msgs'); return s ? JSON.parse(s) : MOCK_DATA.messages })
+=======
+  const { schoolId } = useParams()
+  const [messages, setMessages] = useState(() => { const s = localStorage.getItem(`erp_${schoolId}_msgs`); return s ? JSON.parse(s) : MOCK_DATA.messages })
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const [selected, setSelected] = useState(null)
   const [compose, setCompose] = useState(false)
   const [composeForm, setComposeForm] = useState({to:'',subject:'',body:''})
   const [sent, setSent] = useState(false)
 
+<<<<<<< HEAD
   const save = d => { localStorage.setItem('nms_msgs', JSON.stringify(d)); setMessages(d) }
+=======
+  const save = d => { localStorage.setItem(`erp_${schoolId}_msgs`, JSON.stringify(d)); setMessages(d) }
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const markRead = (id) => save(messages.map(m => m.id === id ? {...m, read: true} : m))
 
   const handleSend = (e) => {

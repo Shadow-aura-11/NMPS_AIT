@@ -1,11 +1,23 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
+<<<<<<< HEAD
+=======
+import { Link, useParams } from 'react-router-dom'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 import { FiAward, FiCheck, FiPrinter, FiLayout, FiType, FiImage, FiGrid, FiSquare, FiSave, FiChevronLeft } from 'react-icons/fi'
 
 export default function CertificateDesigner() {
   const { user } = useAuth()
+<<<<<<< HEAD
   const [config, setConfig] = useState(() => {
     const saved = localStorage.getItem('nms_cert_config')
+=======
+  const { schoolId } = useParams()
+  const prefix = `/${schoolId}/erp`
+
+  const [config, setConfig] = useState(() => {
+    const saved = localStorage.getItem(`erp_${schoolId}_cert_config`)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     return saved ? JSON.parse(saved) : {
       schoolName: 'New Morning Star Public School',
       address: 'Main Road, Sector 4, City - 123456',
@@ -25,7 +37,11 @@ export default function CertificateDesigner() {
   })
 
   const saveConfig = () => {
+<<<<<<< HEAD
     localStorage.setItem('nms_cert_config', JSON.stringify(config))
+=======
+    localStorage.setItem(`erp_${schoolId}_cert_config`, JSON.stringify(config))
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     alert('Certificate Design Saved Successfully!')
   }
 
@@ -111,9 +127,15 @@ export default function CertificateDesigner() {
             <p style={{ fontSize: 13, color: 'var(--primary-700)', marginBottom: 10 }}>
               Background templates, logos, and signatures are now managed globally.
             </p>
+<<<<<<< HEAD
             <a href="/erp/settings" style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: 5 }}>
               <FiLayout /> Go to Global Branding Settings
             </a>
+=======
+            <Link to={`${prefix}/settings`} style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <FiLayout /> Go to Global Branding Settings
+            </Link>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
           </div>
         </div>
 

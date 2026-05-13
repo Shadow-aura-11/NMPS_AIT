@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useAuth, MOCK_DATA, getSessionStore, saveSessionStore } from '../../context/AuthContext'
+<<<<<<< HEAD
 import { useData } from '../../context/DataContext'
 import { FiCalendar, FiEdit3, FiSave, FiX, FiPlus, FiFilter, FiDownload, FiInfo } from 'react-icons/fi'
+=======
+import { FiCalendar, FiEdit3, FiSave, FiX, FiPlus, FiFilter, FiDownload, FiInfo } from 'react-icons/fi'
+import { useData } from '../../context/DataContext'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
 const subColors = { 
   Physics:'#3b82f6', Mathematics:'#8b5cf6', English:'#ec4899', Hindi:'#f97316', 
@@ -14,6 +19,7 @@ const subjects = ['Physics', 'Chemistry', 'Mathematics', 'Biology', 'English', '
 
 export default function TimetablePage() {
   const { user, currentSession } = useAuth()
+<<<<<<< HEAD
   const { globalClasses = [] } = useData() || {}
   const classList = globalClasses.map(c => c.class)
   const isAdmin = user?.role === 'admin'
@@ -21,6 +27,17 @@ export default function TimetablePage() {
   const canEdit = isAdmin || isTeacher
 
   const [selectedClass, setSelectedClass] = useState('10th')
+=======
+  const isAdmin = user?.role === 'admin'
+  const isTeacher = user?.role === 'teacher'
+  const canEdit = isAdmin || isTeacher
+  const { classes: erpClasses = [] } = useData() || {}
+  const classes = erpClasses.length > 0 ? erpClasses.map(c => c.class) : ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
+
+  const [selectedClass, setSelectedClass] = useState('10th')
+  const currentClassObj = erpClasses.find(c => c.class === selectedClass)
+  const sectionList = currentClassObj?.sections?.map(s => s.name) || ['A', 'B', 'C', 'D']
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const [selectedSection, setSelectedSection] = useState('-')
   const [isEditing, setIsEditing] = useState(false)
   
@@ -109,7 +126,11 @@ export default function TimetablePage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 13, color: 'var(--gray-600)' }}>Class:</span>
             <select className="form-select" style={{ width: 100 }} value={selectedClass} onChange={e => { setSelectedClass(e.target.value); setIsEditing(false); }}>
+<<<<<<< HEAD
               {classList.map(cls => <option key={cls} value={cls}>{cls}</option>)}
+=======
+              {classes.map(cls => <option key={cls} value={cls}>{cls}</option>)}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
             </select>
           </div>
 
@@ -117,7 +138,11 @@ export default function TimetablePage() {
             <span style={{ fontSize: 13, color: 'var(--gray-600)' }}>Section:</span>
             <select className="form-select" style={{ width: 100 }} value={selectedSection} onChange={e => { setSelectedSection(e.target.value); setIsEditing(false); }}>
               <option value="-">None</option>
+<<<<<<< HEAD
               {['A', 'B', 'C', 'D'].map(sec => <option key={sec} value={sec}>{sec}</option>)}
+=======
+              {sectionList.map(sec => <option key={sec} value={sec}>{sec}</option>)}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
             </select>
           </div>
 

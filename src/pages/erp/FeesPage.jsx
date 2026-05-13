@@ -1,14 +1,28 @@
+<<<<<<< HEAD
 import { useState, useMemo, useEffect } from 'react'
 import { useAuth, MOCK_DATA, feeKey, getPreviousSessionsDue } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import { FiDollarSign, FiSearch, FiCheckCircle, FiClock, FiAlertCircle, FiPlus, FiPrinter, FiX, FiTag, FiAlertTriangle, FiDownload, FiRefreshCw, FiTruck, FiTrash2 } from 'react-icons/fi'
+=======
+import { useState, useMemo } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useAuth, MOCK_DATA, feeKey, getPreviousSessionsDue } from '../../context/AuthContext'
+import { useData } from '../../context/DataContext'
+import { FiDollarSign, FiSearch, FiCheckCircle, FiClock, FiAlertCircle, FiPlus, FiPrinter, FiX, FiTag, FiAlertTriangle, FiDownload, FiRefreshCw, FiTruck, FiTrash2, FiImage, FiSave } from 'react-icons/fi'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 import { exportToCSV } from '../../utils/exportUtils'
 import { generatePDF } from '../../utils/pdfUtils'
 
 export default function FeesPage() {
   const { user, currentSession, sessions } = useAuth()
+<<<<<<< HEAD
   const { students, refreshData, globalClasses = [] } = useData()
   const classList = globalClasses.map(c => c.class)
+=======
+  const { schoolId } = useParams()
+  const { students, refreshData, classes = [], transportRoutes = [] } = useData()
+  const [certConfig, setCertConfig] = useState(() => JSON.parse(localStorage.getItem(`erp_${schoolId}_cert_config`) || '{"schoolName":"NEW MORNING STAR PUBLIC SCHOOL", "address":"Subhash Nagar, New Delhi", "phone":"+91 98765 43210"}'))
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
   const syncFees = () => {
     if (!window.confirm(`Recalculate all fee balances for the CURRENT session (${currentSession})? This will fix any balance discrepancies across all students.`)) return
@@ -25,10 +39,18 @@ export default function FeesPage() {
   const [selectedStudent, setSelectedStudent] = useState(null)
   const [search, setSearch] = useState('')
   const [collectModal, setCollectModal] = useState(false)
+<<<<<<< HEAD
+=======
+  const [brandingModal, setBrandingModal] = useState(false)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const [printData, setPrintData] = useState(null)
   const [collectTarget, setCollectTarget] = useState('current') // 'current' | session string
   const [configModal, setConfigModal] = useState(false)
   const [feeConfig, setFeeConfig] = useState({ classFee: 0, transportFee: 0 })
+<<<<<<< HEAD
+=======
+  const [receiptHeader, setReceiptHeader] = useState({ name: '', address: '', phone: '' })
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   
   const [filterClass, setFilterClass] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
@@ -45,6 +67,7 @@ export default function FeesPage() {
     return seed
   })
 
+<<<<<<< HEAD
   // Sync fee updates across tabs
   useEffect(() => {
     const handleStorageChange = (e) => {
@@ -56,6 +79,8 @@ export default function FeesPage() {
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [currentSession])
 
+=======
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   // Reload fees when session changes
   const getRecordsForSession = (session) => {
     const stored = localStorage.getItem(feeKey(session))
@@ -71,7 +96,11 @@ export default function FeesPage() {
   const isTeacher = user?.role === 'teacher'
   const isStudent = user?.role === 'student'
   const isParent = user?.role === 'parent'
+<<<<<<< HEAD
   const globalFeeConfig = useMemo(() => JSON.parse(localStorage.getItem('nms_global_fee_config') || '{"classFees":{},"transportFees":{}}'), [currentSession])
+=======
+  const globalFeeConfig = useMemo(() => JSON.parse(localStorage.getItem(`erp_${schoolId}_global_fee_config`) || '{"classFees":{},"transportFees":{}}'), [currentSession, schoolId])
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   
   const getStudentTotalFee = (student) => {
     const classFee = Number(globalFeeConfig.classFees[student.class] || 40000)
@@ -185,8 +214,13 @@ export default function FeesPage() {
       status: 'Paid',
       mode: collectForm.mode,
       remarks: collectForm.remarks,
+<<<<<<< HEAD
       session: targetSession,
       collectedBy: user?.name || 'Admin'
+=======
+      collectedBy: user.name,
+      session: targetSession
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     }
 
     const updatedRec = {
@@ -258,9 +292,20 @@ export default function FeesPage() {
         {(isAdmin || isTeacher) && (
           <div style={{ display: 'flex', gap: 10 }}>
             {isAdmin && (
+<<<<<<< HEAD
               <button className="btn btn-secondary btn-sm" onClick={syncFees} title="Recalculate all unpaid balances for this session">
                 <FiRefreshCw /> Recalculate All
               </button>
+=======
+              <>
+                <button className="btn btn-secondary btn-sm" onClick={() => setBrandingModal(true)}>
+                  <FiImage /> Branding
+                </button>
+                <button className="btn btn-secondary btn-sm" onClick={syncFees} title="Recalculate all unpaid balances for this session">
+                  <FiRefreshCw /> Recalculate All
+                </button>
+              </>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
             )}
             <button className="btn btn-secondary btn-sm" onClick={handleBulkExport}>
               <FiDownload /> Export CSV
@@ -299,12 +344,20 @@ export default function FeesPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <select className="form-select form-select-sm" value={filterClass} onChange={e => setFilterClass(e.target.value)}>
                   <option value="">All Classes</option>
+<<<<<<< HEAD
                   {classList.map(c => <option key={c} value={c}>{c}</option>)}
+=======
+                  {classes.map(c => <option key={c.class} value={c.class}>Class {c.class}</option>)}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                 </select>
                 <select className="form-select form-select-sm" value={filterTransport} onChange={e => setFilterTransport(e.target.value)}>
                   <option value="">All Routes</option>
                   <option value="None">Self (None)</option>
+<<<<<<< HEAD
                   {Object.keys(globalFeeConfig.transportFees || {}).map(route => <option key={route} value={route}>{route}</option>)}
+=======
+                  {transportRoutes.map(r => <option key={r.route} value={r.route}>{r.route}</option>)}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                 </select>
               </div>
               <select className="form-select form-select-sm" value={filterPaidPct} onChange={e => setFilterPaidPct(e.target.value)} style={{ width: '100%' }}>
@@ -473,6 +526,7 @@ export default function FeesPage() {
                             <td style={{ fontWeight: 600 }}>₹{(Number(h.amount) || 0).toLocaleString()}</td>
                             <td style={{ color: 'var(--gold-600)', fontWeight: 600 }}>₹{h.discount || 0}</td>
                             <td style={{ color: 'var(--accent-600)', fontWeight: 700 }}>₹{(Number(h.paid) || 0).toLocaleString()}</td>
+<<<<<<< HEAD
                             <td style={{ fontSize: 12, fontWeight: 500, color: 'var(--primary-600)' }}>{h.collectedBy || 'Admin'}</td>
                             <td style={{ fontSize: 12, color: 'var(--gray-500)', maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{h.remarks || '-'}</td>
                             <td>
@@ -481,6 +535,19 @@ export default function FeesPage() {
                                    onClick={() => setPrintData({ ...h, studentName: selectedStudent.name, studentId: selectedStudent.id, class: selectedStudent.class, rollNo: selectedStudent.rollNo })}>
                                    <FiPrinter size={14} color="var(--gray-500)" />
                                  </button>
+=======
+                            <td style={{ fontSize: 11, fontWeight: 600, color: 'var(--primary-600)' }}>{h.collectedBy || 'Admin'}</td>
+                            <td style={{ fontSize: 12, color: 'var(--gray-500)', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{h.remarks || '-'}</td>
+                            <td>
+                               <div style={{ display: 'flex', gap: 6 }}>
+                                   <button className="btn btn-sm" style={{ padding: 4, background: 'var(--gray-50)' }}
+                                     onClick={() => {
+                                       setPrintData({ ...h, studentName: selectedStudent.name, studentId: selectedStudent.id, class: selectedStudent.class, rollNo: selectedStudent.rollNo });
+                                       setReceiptHeader({ name: certConfig.schoolName, address: certConfig.address, phone: certConfig.phone });
+                                     }}>
+                                     <FiPrinter size={14} color="var(--gray-500)" />
+                                   </button>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                                  {isAdmin && (
                                    <button className="btn btn-sm" style={{ padding: 4, background: 'var(--error-50)' }}
                                      onClick={() => handleDeleteTransaction(h)}>
@@ -582,8 +649,14 @@ export default function FeesPage() {
           <div style={{ background: 'white', padding: 40, maxWidth: 600, width: '100%' }} onClick={e => e.stopPropagation()}>
             <div id="receipt-print-area" style={{ background: 'white !important', color: '#1e293b !important', boxShadow: 'inset 0 0 0 1000px white !important' }}>
               <div style={{ borderBottom: '2px solid #1e293b', paddingBottom: 20, marginBottom: 30, textAlign: 'center' }}>
+<<<<<<< HEAD
                 <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1e40af !important' }}>NEW MORNING STAR PUBLIC SCHOOL</h1>
                 <p style={{ fontSize: 12, color: '#64748b !important', marginTop: 4 }}>Subhash Nagar, New Delhi - 110027 | +91 11 2345 6789</p>
+=======
+                {certConfig.logoImage && <img src={certConfig.logoImage} style={{ height: 50, marginBottom: 10, display: 'block', margin: '0 auto' }} />}
+                <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1e40af !important' }}>{receiptHeader.name || certConfig.schoolName}</h1>
+                <p style={{ fontSize: 12, color: '#64748b !important', marginTop: 4 }}>{receiptHeader.address || certConfig.address} | {receiptHeader.phone || certConfig.phone}</p>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                 <div style={{ display: 'inline-block', padding: '4px 15px', background: '#1e293b !important', boxShadow: 'inset 0 0 0 1000px #1e293b !important', color: 'white !important', fontSize: 11, fontWeight: 700, marginTop: 15, borderRadius: 4, WebkitPrintColorAdjust: 'exact' }}>FEE RECEIPT</div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 30, marginBottom: 25 }}>
@@ -606,6 +679,7 @@ export default function FeesPage() {
                 </tbody>
                 <tfoot><tr style={{ borderTop: '2px solid #1e293b', background: '#f8fafc !important', boxShadow: 'inset 0 0 0 1000px #f8fafc !important' }}><td style={{ padding: '15px 0', fontWeight: 800, fontSize: 16, color: '#0f172a !important' }}>TOTAL PAID</td><td style={{ textAlign: 'right', padding: '15px 0', fontWeight: 800, fontSize: 18, color: '#1e40af !important' }}>₹{printData.paid.toLocaleString()}</td></tr></tfoot>
               </table>
+<<<<<<< HEAD
                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 30 }}>
                 {printData.remarks && (
                   <div>
@@ -617,13 +691,76 @@ export default function FeesPage() {
                   <div style={{ fontSize: 10, color: '#94a3b8 !important', textTransform: 'uppercase' }}>Collected By</div>
                   <div style={{ fontSize: 13, color: '#0f172a !important', marginTop: 5, fontWeight: 600 }}>{printData.collectedBy || 'School Administrator'}</div>
                 </div>
+=======
+              {printData.remarks && (
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 10, color: '#94a3b8 !important', textTransform: 'uppercase' }}>Remarks</div>
+                  <div style={{ fontSize: 13, color: '#0f172a !important', marginTop: 5 }}>{printData.remarks}</div>
+                </div>
+              )}
+              <div style={{ marginBottom: 30, padding: '10px 15px', background: '#f8fafc !important', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: 10, color: '#94a3b8 !important', textTransform: 'uppercase' }}>Payment Collected By</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af !important', marginTop: 2 }}>{printData.collectedBy || 'Authorized Admin'}</div>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, marginTop: 40 }}>
                 <div style={{ fontSize: 11, color: '#94a3b8 !important' }}>* Computer generated receipt.<br />* Fees once paid is non-refundable.</div>
                 <div style={{ textAlign: 'center' }}><div style={{ height: 1, background: '#cbd5e1', marginBottom: 10 }} /><div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a !important' }}>Authorized Signatory</div></div>
               </div>
             </div>
+<<<<<<< HEAD
             <div style={{ display: 'flex', gap: 15, marginTop: 30 }} className="no-print">
+=======
+            {user?.role === 'admin' && (
+              <div style={{ marginTop: 25, padding: 20, background: 'var(--primary-50)', borderRadius: 12, border: '1px solid var(--primary-200)' }} className="no-print">
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--primary-700)', marginBottom: 12, textTransform: 'uppercase' }}>Update Global School Branding</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label" style={{ fontSize: 10 }}>School Name</label>
+                    <input className="form-input" style={{ height: 32, fontSize: 12 }} value={certConfig.schoolName} onChange={e => setCertConfig({ ...certConfig, schoolName: e.target.value })} />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label" style={{ fontSize: 10 }}>Update School Logo</label>
+                    <input type="file" className="form-input" style={{ height: 32, fontSize: 10, padding: '4px 8px' }} accept="image/*" 
+                      onChange={e => {
+                        const file = e.target.files[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onloadend = () => setCertConfig({ ...certConfig, logoImage: reader.result })
+                          reader.readAsDataURL(file)
+                        }
+                      }} 
+                    />
+                  </div>
+                </div>
+                <button className="btn btn-primary btn-sm" style={{ width: '100%', marginTop: 5 }} 
+                  onClick={() => {
+                    localStorage.setItem(`erp_${schoolId}_cert_config`, JSON.stringify(certConfig))
+                    alert('Global Branding Updated!')
+                  }}>
+                  <FiSave /> Save to All Documents
+                </button>
+              </div>
+            )}
+            <div style={{ marginTop: 25, padding: 20, background: 'var(--gray-50)', borderRadius: 12, border: '1px solid var(--gray-200)' }} className="no-print">
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--gray-600)', marginBottom: 12, textTransform: 'uppercase' }}>Edit Receipt Header (For this print)</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label" style={{ fontSize: 10 }}>School Name</label>
+                  <input className="form-input" style={{ height: 32, fontSize: 12 }} value={receiptHeader.name} onChange={e => setReceiptHeader({ ...receiptHeader, name: e.target.value })} />
+                </div>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label" style={{ fontSize: 10 }}>Contact Info</label>
+                  <input className="form-input" style={{ height: 32, fontSize: 12 }} value={receiptHeader.phone} onChange={e => setReceiptHeader({ ...receiptHeader, phone: e.target.value })} />
+                </div>
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontSize: 10 }}>Address</label>
+                <input className="form-input" style={{ height: 32, fontSize: 12 }} value={receiptHeader.address} onChange={e => setReceiptHeader({ ...receiptHeader, address: e.target.value })} />
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 15, marginTop: 20 }} className="no-print">
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
               <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => generatePDF('receipt-print-area', `Receipt_${printData.id}.pdf`)}>
                 <FiPrinter /> Download PDF Receipt
               </button>
@@ -633,6 +770,66 @@ export default function FeesPage() {
         </div>
       )}
 
+<<<<<<< HEAD
+=======
+      {/* Branding Modal */}
+      {brandingModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }} onClick={() => setBrandingModal(false)}>
+          <div style={{ background: 'white', borderRadius: 20, padding: 32, maxWidth: 500, width: '100%' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+              <h3 style={{ fontWeight: 700, fontSize: 18 }}>Global School Branding</h3>
+              <button type="button" onClick={() => setBrandingModal(false)}><FiX /></button>
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">School Name</label>
+              <input className="form-input" value={certConfig.schoolName} onChange={e => setCertConfig({ ...certConfig, schoolName: e.target.value })} />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">School Logo</label>
+              <input type="file" className="form-input" accept="image/*" 
+                onChange={e => {
+                  const file = e.target.files[0]
+                  if (file) {
+                    const reader = new FileReader()
+                    reader.onloadend = () => setCertConfig({ ...certConfig, logoImage: reader.result })
+                    reader.readAsDataURL(file)
+                  }
+                }} 
+              />
+              {certConfig.logoImage && <img src={certConfig.logoImage} style={{ height: 60, marginTop: 10, borderRadius: 4 }} alt="Logo Preview" />}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Address</label>
+              <textarea className="form-input" style={{ height: 60 }} value={certConfig.address} onChange={e => setCertConfig({ ...certConfig, address: e.target.value })} />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 15 }}>
+              <div className="form-group">
+                <label className="form-label">Phone</label>
+                <input className="form-input" value={certConfig.phone} onChange={e => setCertConfig({ ...certConfig, phone: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Email</label>
+                <input className="form-input" value={certConfig.email} onChange={e => setCertConfig({ ...certConfig, email: e.target.value })} />
+              </div>
+            </div>
+
+            <button className="btn btn-primary w-full" style={{ marginTop: 10 }}
+              onClick={() => {
+                localStorage.setItem(`erp_${schoolId}_cert_config`, JSON.stringify(certConfig))
+                setBrandingModal(false)
+                alert('Branding updated successfully!')
+              }}>
+              <FiSave /> Save Global Branding
+            </button>
+          </div>
+        </div>
+      )}
+
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
       {/* Config Modal */}
       {configModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }} onClick={() => setConfigModal(false)}>

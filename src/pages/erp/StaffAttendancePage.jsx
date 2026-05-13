@@ -1,5 +1,9 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useAuth, MOCK_DATA } from '../../context/AuthContext'
+<<<<<<< HEAD
+=======
+import { useParams } from 'react-router-dom'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 import { useData } from '../../context/DataContext'
 import { 
   FiClock, FiCalendar, FiUsers, FiTrendingUp, FiCheckCircle, 
@@ -8,8 +12,38 @@ import {
 } from 'react-icons/fi'
 import { motion, AnimatePresence } from 'framer-motion'
 
+<<<<<<< HEAD
 export default function StaffAttendancePage() {
   const { user } = useAuth()
+=======
+// Helper: Convert 24h string (13:30) to 12h string (01:30 PM)
+const to12h = (t24) => {
+  if (!t24 || t24 === '--') return '--'
+  if (t24.includes('AM') || t24.includes('PM')) return t24 // Already 12h
+  const [h, m] = t24.split(':')
+  const hour = parseInt(h)
+  const ampm = hour >= 12 ? 'PM' : 'AM'
+  const h12 = hour % 12 || 12
+  return `${String(h12).padStart(2, '0')}:${m} ${ampm}`
+}
+
+// Helper: Convert 12h string (01:30 PM) to 24h string (13:30) for <input type="time">
+const to24h = (t12) => {
+  if (!t12 || t12 === '--') return ''
+  const parts = t12.split(' ')
+  if (parts.length < 2) return t12 // Already 24h or invalid
+  const [time, ampm] = parts
+  let [h, m] = time.split(':')
+  let hour = parseInt(h)
+  if (ampm === 'PM' && hour < 12) hour += 12
+  if (ampm === 'AM' && hour === 12) hour = 0
+  return `${String(hour).padStart(2, '0')}:${m}`
+}
+
+export default function StaffAttendancePage() {
+  const { user } = useAuth()
+  const { schoolId } = useParams()
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const { staff = MOCK_DATA.staff } = useData() || {}
   
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
@@ -20,14 +54,24 @@ export default function StaffAttendancePage() {
 
   // Simulated Biometric Logs for the selected date
   const [biometricLogs, setBiometricLogs] = useState(() => {
+<<<<<<< HEAD
     const saved = localStorage.getItem(`nms_biometric_${selectedDate}`)
+=======
+    const saved = localStorage.getItem(`erp_${schoolId}_biometric_${selectedDate}`)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     return saved ? JSON.parse(saved) : {}
   })
 
   useEffect(() => {
+<<<<<<< HEAD
     const saved = localStorage.getItem(`nms_biometric_${selectedDate}`)
     setBiometricLogs(saved ? JSON.parse(saved) : {})
   }, [selectedDate])
+=======
+    const saved = localStorage.getItem(`erp_${schoolId}_biometric_${selectedDate}`)
+    setBiometricLogs(saved ? JSON.parse(saved) : {})
+  }, [selectedDate, schoolId])
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
   const filteredStaff = useMemo(() => {
     return staff.filter(s => {
@@ -48,7 +92,11 @@ export default function StaffAttendancePage() {
     }
     
     setBiometricLogs(newLogs)
+<<<<<<< HEAD
     localStorage.setItem(`nms_biometric_${selectedDate}`, JSON.stringify(newLogs))
+=======
+    localStorage.setItem(`erp_${schoolId}_biometric_${selectedDate}`, JSON.stringify(newLogs))
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   }
 
   const handleTimeChange = (staffId, field, value) => {
@@ -57,7 +105,11 @@ export default function StaffAttendancePage() {
     
     newLogs[staffId] = { ...current, [field]: value }
     setBiometricLogs(newLogs)
+<<<<<<< HEAD
     localStorage.setItem(`nms_biometric_${selectedDate}`, JSON.stringify(newLogs))
+=======
+    localStorage.setItem(`erp_${schoolId}_biometric_${selectedDate}`, JSON.stringify(newLogs))
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   }
 
   const handleSync = () => {
@@ -83,7 +135,11 @@ export default function StaffAttendancePage() {
         }
       })
       setBiometricLogs(newLogs)
+<<<<<<< HEAD
       localStorage.setItem(`nms_biometric_${selectedDate}`, JSON.stringify(newLogs))
+=======
+      localStorage.setItem(`erp_${schoolId}_biometric_${selectedDate}`, JSON.stringify(newLogs))
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
       setIsSyncing(false)
     }, 1500)
   }
@@ -96,6 +152,7 @@ export default function StaffAttendancePage() {
     return { total, present, absent, late }
   }, [staff, biometricLogs])
 
+<<<<<<< HEAD
   // Monthly Report Logic
   const monthData = useMemo(() => {
     if (!viewingReport) return []
@@ -136,13 +193,61 @@ export default function StaffAttendancePage() {
         if (isWeekend) status = 'Holiday'
         else if (rand < 0.1) status = 'Absent'
         else if (rand < 0.2) status = 'Late'
+=======
+  // Monthly Report Logic (Real-time)
+  const monthData = useMemo(() => {
+    if (!viewingReport) return []
+    const daysInMonth = new Date(reportMonth.getFullYear(), reportMonth.getMonth() + 1, 0).getDate()
+    const data = []
+    
+    for (let i = 1; i <= daysInMonth; i++) {
+      const date = new Date(reportMonth.getFullYear(), reportMonth.getMonth(), i)
+      // Use local date string to match keys
+      const y = date.getFullYear()
+      const m = String(date.getMonth() + 1).padStart(2, '0')
+      const d = String(date.getDate()).padStart(2, '0')
+      const dateStr = `${y}-${m}-${d}`
+      const isWeekend = date.getDay() === 0 // Sunday
+      
+      // 1. Try to load actual log from database/localStorage
+      const saved = localStorage.getItem(`erp_${schoolId}_biometric_${dateStr}`)
+      const logs = saved ? JSON.parse(saved) : {}
+      const log = logs[viewingReport.id]
+
+      if (log) {
+        data.push({ 
+          date: dateStr, 
+          day: i, 
+          status: log.status, 
+          checkIn: log.checkIn,
+          checkOut: log.checkOut
+        })
+      } else {
+        // 2. Fallback to mock data for dates that don't have records yet
+        const seed = viewingReport.id.charCodeAt(0) + i + reportMonth.getMonth()
+        const rand = (Math.sin(seed) * 10000) % 1
+        
+        let status = 'Pending'
+        if (isWeekend) status = 'Holiday'
+        // Only show mock "Past" data, not future
+        else if (date <= new Date()) {
+          if (rand < 0.1) status = 'Absent'
+          else if (rand < 0.2) status = 'Late'
+          else status = 'Present'
+        }
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
         data.push({ 
           date: dateStr, 
           day: i, 
           status, 
+<<<<<<< HEAD
           checkIn: status === 'Absent' || status === 'Holiday' ? '--' : '08:15 AM',
           checkOut: status === 'Absent' || status === 'Holiday' ? '--' : '03:30 PM'
+=======
+          checkIn: status === 'Absent' || status === 'Holiday' || status === 'Pending' ? '--' : '08:15 AM',
+          checkOut: status === 'Absent' || status === 'Holiday' || status === 'Pending' ? '--' : '03:30 PM'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
         })
       }
     }
@@ -234,10 +339,23 @@ export default function StaffAttendancePage() {
                         <div style={{ fontSize: 10, color: 'var(--gray-400)' }}>{s.dept}</div>
                       </td>
                       <td style={{ textAlign: 'center' }}>
+<<<<<<< HEAD
                         <input type="text" className="form-input" style={{ width: 80, fontSize: 11, textAlign: 'center', padding: '4px' }} value={log.checkIn} onChange={e => handleTimeChange(s.id, 'checkIn', e.target.value)} disabled={log.status === 'Absent'} />
                       </td>
                       <td style={{ textAlign: 'center' }}>
                         <input type="text" className="form-input" style={{ width: 80, fontSize: 11, textAlign: 'center', padding: '4px' }} value={log.checkOut} onChange={e => handleTimeChange(s.id, 'checkOut', e.target.value)} disabled={log.status === 'Absent'} />
+=======
+                        <input type="time" className="form-input" style={{ width: 100, fontSize: 11, textAlign: 'center', padding: '4px' }} 
+                          value={to24h(log.checkIn)} 
+                          onChange={e => handleTimeChange(s.id, 'checkIn', to12h(e.target.value))} 
+                          disabled={log.status === 'Absent'} />
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <input type="time" className="form-input" style={{ width: 100, fontSize: 11, textAlign: 'center', padding: '4px' }} 
+                          value={to24h(log.checkOut)} 
+                          onChange={e => handleTimeChange(s.id, 'checkOut', to12h(e.target.value))} 
+                          disabled={log.status === 'Absent'} />
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                       </td>
                       <td style={{ textAlign: 'center' }}>
                         <div style={{ display: 'flex', gap: 4, justifyContent: 'center' }}>
@@ -306,6 +424,7 @@ export default function StaffAttendancePage() {
                       <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--error)' }}>{monthSummary.Absent}</div>
                       <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--gray-500)', textTransform: 'uppercase' }}>Absent</div>
                    </div>
+<<<<<<< HEAD
                    <div style={{ textAlign: 'center', padding: 12, background: 'var(--warning-50)', borderRadius: 10 }}>
                       <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--warning)' }}>{monthSummary.Late}</div>
                       <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--gray-500)', textTransform: 'uppercase' }}>Late</div>
@@ -313,6 +432,15 @@ export default function StaffAttendancePage() {
                 </div>
 
                 <div style={{ maxHeight: 400, overflowY: 'auto', paddingRight: 5 }}>
+=======
+                    <div style={{ textAlign: 'center', padding: 12, background: 'var(--warning-50)', borderRadius: 10 }}>
+                       <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--warning)' }}>{monthSummary.Late}</div>
+                       <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--gray-500)', textTransform: 'uppercase' }}>Late</div>
+                    </div>
+                 </div>
+ 
+                 <div style={{ maxHeight: 400, overflowY: 'auto', paddingRight: 5, scrollbarWidth: 'thin' }}>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                   <h4 style={{ fontSize: 11, fontWeight: 800, color: 'var(--gray-400)', textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <FiClock /> Detailed Attendance History
                   </h4>

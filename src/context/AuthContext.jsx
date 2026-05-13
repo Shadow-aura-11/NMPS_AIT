@@ -1,4 +1,9 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+<<<<<<< HEAD
+=======
+import { api } from '../utils/api'
+import { getActiveSchool } from '../config/schools'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
 const AuthContext = createContext(null)
 
@@ -65,24 +70,54 @@ export const MOCK_DATA = {
 
   /* ── classes & sections ── */
   classesAndSections: [],
+<<<<<<< HEAD
   availableClasses: ['PG', 'LKG', 'UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'],
+=======
+  availableClasses: ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'],
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 }
 
 /* ──────────────────────────────────────────────
    SESSION UTILITIES
    ────────────────────────────────────────────── */
 
+<<<<<<< HEAD
 /** Dynamic list of academic sessions */
 export function getStoredSessions() {
   const saved = localStorage.getItem('nms_sessions_list')
+=======
+/** Dynamic prefix for storage based on subdomain/hash path */
+const getStoragePrefix = () => {
+  const school = getActiveSchool();
+  return `erp_${school.key || 'nms'}`;
+};
+
+/** Dynamic list of academic sessions */
+export function getStoredSessions() {
+  const prefix = getStoragePrefix();
+  const saved = localStorage.getItem(`${prefix}_sessions_list`)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   return saved ? JSON.parse(saved) : ["2023-24", "2024-25", "2025-26"]
 }
 
 /** Fee localStorage key per session */
+<<<<<<< HEAD
 export const feeKey = (session) => `nms_fees_${session}`
 
 /** General data localStorage key per session (homework, attendance, etc.) */
 export const dataKey = (session) => `nms_data_${session}`
+=======
+export const feeKey = (session) => {
+  const prefix = getStoragePrefix();
+  return `${prefix}_fees_${session}`;
+}
+
+/** General data localStorage key per session (homework, attendance, etc.) */
+export const dataKey = (session) => {
+  const prefix = getStoragePrefix();
+  return `${prefix}_data_${session}`;
+}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
 /** Get fees for a student in a specific session */
 export function getSessionFees(studentId, session) {
@@ -122,6 +157,7 @@ export function saveSessionFees(studentId, session, record, allRecords) {
 /* ──────────────────────────────────────────────
    AUTH PROVIDER
    ────────────────────────────────────────────── */
+<<<<<<< HEAD
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('nms_user')
@@ -130,10 +166,27 @@ export function AuthProvider({ children }) {
   const [sessions, setSessions] = useState(getStoredSessions)
   const [currentSession, setCurrentSession] = useState(() => {
     return localStorage.getItem('nms_session') || '2026-27'
+=======
+export const AuthProvider = ({ children }) => {
+  const prefix = getStoragePrefix();
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem(`${prefix}_user`)
+    return saved ? JSON.parse(saved) : null
+  })
+  const [agencyUser, setAgencyUser] = useState(() => {
+    const saved = localStorage.getItem('agency_admin_user')
+    return saved ? JSON.parse(saved) : null
+  })
+  const [school, setSchool] = useState(getActiveSchool())
+  const [sessions, setSessions] = useState(getStoredSessions)
+  const [currentSession, setCurrentSession] = useState(() => {
+    return localStorage.getItem(`${prefix}_session`) || '2026-27'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   })
   const [error, setError] = useState('')
 
   useEffect(() => {
+<<<<<<< HEAD
     if (user) localStorage.setItem('nms_user', JSON.stringify(user))
     else localStorage.removeItem('nms_user')
   }, [user])
@@ -189,6 +242,118 @@ export function AuthProvider({ children }) {
       return true
     }
     setError('Invalid username or password. Please try again.')
+=======
+    const loadSessions = async () => {
+      const serverSessions = await api.get('sessions_list')
+      if (serverSessions && Array.isArray(serverSessions) && serverSessions.length > 0) {
+        setSessions(serverSessions)
+      }
+    }
+    loadSessions()
+  }, [])
+
+  useEffect(() => {
+    const prefix = getStoragePrefix();
+    if (user) localStorage.setItem(`${prefix}_user`, JSON.stringify(user))
+    else localStorage.removeItem(`${prefix}_user`)
+  }, [user])
+
+  useEffect(() => {
+    const prefix = getStoragePrefix();
+    localStorage.setItem(`${prefix}_sessions_list`, JSON.stringify(sessions))
+    api.save('sessions_list', sessions)
+  }, [sessions])
+
+  useEffect(() => {
+    const prefix = getStoragePrefix();
+    localStorage.setItem(`${prefix}_session`, currentSession)
+  }, [currentSession])
+
+  useEffect(() => {
+    if (agencyUser) localStorage.setItem('agency_admin_user', JSON.stringify(agencyUser))
+    else localStorage.removeItem('agency_admin_user')
+  }, [agencyUser])
+
+  const login = (username, password) => {
+    setError('')
+    
+    // 1. Check School-Specific Credentials (Admin/Teacher)
+    if (school) {
+      const u = username.toLowerCase()
+      // Admin Check (Now pulled directly from school config)
+      const schoolAdminUser = school.adminUsername
+      const schoolAdminPass = school.adminPassword
+      
+      if (schoolAdminUser && u === schoolAdminUser.toLowerCase() && password === schoolAdminPass) {
+        setUser({
+          id: `ADM_${school.key.toUpperCase()}`,
+          username: schoolAdminUser,
+          role: 'admin',
+          name: `${school.shortName} Admin`,
+          designation: 'Principal / Director',
+          avatar: school.logoText || 'AD'
+        })
+        return true
+      }
+
+      // Teacher Check (Now pulled directly from school config)
+      const schoolTeacherUser = school.teacherUsername
+      const schoolTeacherPass = school.teacherPassword
+      
+      if (schoolTeacherUser && u === schoolTeacherUser.toLowerCase() && password === schoolTeacherPass) {
+        setUser({
+          id: `TEA_${school.key.toUpperCase()}`,
+          username: schoolTeacherUser,
+          role: 'teacher',
+          name: `${school.shortName} Teacher`,
+          designation: 'Faculty Member',
+          avatar: 'TE'
+        })
+        return true
+      }
+
+      // Staff Check (Dynamic via Staff Module)
+      const staffKey = `erp_${school.key}_staff_global`
+      const staffList = JSON.parse(localStorage.getItem(staffKey) || '[]')
+      const staffFound = staffList.find(
+        s => s.username?.toLowerCase() === username.toLowerCase() && s.password === password
+      )
+
+      if (staffFound) {
+        setUser({
+          id: staffFound.id,
+          username: staffFound.username,
+          role: 'teacher',
+          name: staffFound.name,
+          designation: staffFound.designation,
+          avatar: staffFound.name?.[0] || 'T',
+          ...staffFound
+        })
+        return true
+      }
+    }
+
+    // 2. Check Dynamic Users (Students)
+    const stuKey = `erp_${school.key}_students_${currentSession}`
+    const studentsList = JSON.parse(localStorage.getItem(stuKey) || localStorage.getItem(`erp_${school.key}_students`) || '[]')
+    const found = studentsList.find(
+      u => u.username?.toLowerCase() === username.toLowerCase() && u.password === password
+    )
+    if (found) {
+      setUser({
+        id: found.id,
+        username: found.username,
+        role: 'student',
+        name: found.name,
+        class: found.class,
+        avatar: found.name?.[0] || 'S',
+        ...found
+      })
+      return true
+    }
+
+    setError('Invalid username or password for this school.')
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     return false
   }
 
@@ -197,6 +362,26 @@ export function AuthProvider({ children }) {
     setError('')
   }
 
+<<<<<<< HEAD
+=======
+  const agencyLogin = (username, password) => {
+    setError('')
+    // Hardcoded Skolux Agency Admin
+    if (username === 'admin' && password === 'skolux123') {
+      const admin = { id: 'AGENCY001', name: 'Skolux Admin', role: 'agency' }
+      setAgencyUser(admin)
+      return true
+    }
+    setError('Invalid Skolux agency credentials.')
+    return false
+  }
+
+  const agencyLogout = () => {
+    setAgencyUser(null)
+    setError('')
+  }
+
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const updateSession = (year) => {
     setCurrentSession(year)
   }
@@ -221,6 +406,7 @@ export function AuthProvider({ children }) {
       localStorage.setItem(dataKey(year), JSON.stringify(initialData))
 
       // Carry over static configurations from currentSession
+<<<<<<< HEAD
       const classData = localStorage.getItem(`nms_classes_${currentSession}`) || localStorage.getItem('nms_classes')
       if (classData) localStorage.setItem(`nms_classes_${year}`, classData)
 
@@ -229,6 +415,16 @@ export function AuthProvider({ children }) {
 
       const feeConfigData = localStorage.getItem(`nms_global_fee_config_${currentSession}`) || localStorage.getItem('nms_global_fee_config')
       if (feeConfigData) localStorage.setItem(`nms_global_fee_config_${year}`, feeConfigData)
+=======
+      const classData = localStorage.getItem(`${prefix}_classes_${currentSession}`) || localStorage.getItem(`${prefix}_classes`)
+      if (classData) localStorage.setItem(`${prefix}_classes_${year}`, classData)
+
+      const transportData = localStorage.getItem(`${prefix}_transport_${currentSession}`) || localStorage.getItem(`${prefix}_transport`)
+      if (transportData) localStorage.setItem(`${prefix}_transport_${year}`, transportData)
+
+      const feeConfigData = localStorage.getItem(`${prefix}_global_fee_config_${currentSession}`) || localStorage.getItem(`${prefix}_global_fee_config`)
+      if (feeConfigData) localStorage.setItem(`${prefix}_global_fee_config_${year}`, feeConfigData)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
       return true
     }
@@ -251,16 +447,28 @@ export function AuthProvider({ children }) {
     setUser(updatedUser)
     
     // Also update dynamic users list if this is a non-admin user
+<<<<<<< HEAD
     const dynamicUsers = JSON.parse(localStorage.getItem('nms_dynamic_users') || '[]')
     const updatedList = dynamicUsers.map(u => u.id === user.id ? { ...u, ...data } : u)
     if (dynamicUsers.length > 0) {
       localStorage.setItem('nms_dynamic_users', JSON.stringify(updatedList))
+=======
+    const dynamicUsers = JSON.parse(localStorage.getItem(`${prefix}_dynamic_users`) || '[]')
+    const updatedList = dynamicUsers.map(u => u.id === user.id ? { ...u, ...data } : u)
+    if (dynamicUsers.length > 0) {
+      localStorage.setItem(`${prefix}_dynamic_users`, JSON.stringify(updatedList))
+      api.save('dynamic_users', updatedList)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     }
   }
 
   return (
     <AuthContext.Provider value={{ 
+<<<<<<< HEAD
       user, login, logout, error, setError, 
+=======
+      user, school, agencyUser, login, logout, agencyLogin, agencyLogout, error, setError, 
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
       currentSession, updateSession,
       sessions, addSession, deleteSession,
       updateProfile

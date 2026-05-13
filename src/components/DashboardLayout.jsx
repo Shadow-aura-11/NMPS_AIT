@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fi'
 import './DashboardLayout.css'
 
+<<<<<<< HEAD
 /* nav items per role */
 const NAV_ITEMS = {
   admin: [
@@ -56,16 +57,72 @@ const NAV_ITEMS = {
 
 export default function DashboardLayout({ children }) {
   const { user, logout } = useAuth()
+=======
+export default function DashboardLayout({ children }) {
+  const { user, logout, school } = useAuth()
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
 
+<<<<<<< HEAD
+=======
+  const prefix = `/${school.key}/erp`
+
+  const NAV_ITEMS = {
+    admin: [
+      { icon: <FiGrid />, label: 'Dashboard', path: `${prefix}/dashboard` },
+      { icon: <FiUsers />, label: 'Students', path: `${prefix}/students` },
+      { icon: <FiUser />, label: 'Staff', path: `${prefix}/staff` },
+      { icon: <FiDollarSign />, label: 'Fee Management', path: `${prefix}/fees` },
+      { icon: <FiClock />, label: 'Student Attendance', path: `${prefix}/attendance` },
+      { icon: <FiActivity />, label: 'Staff Attendance', path: `${prefix}/staff-attendance` },
+      { icon: <FiCheckSquare />, label: 'Mark Todays attendance', path: `${prefix}/mark-attendance` },
+      { icon: <FiFileText />, label: 'Exams & Results', path: `${prefix}/exams` },
+      { icon: <FiCalendar />, label: 'Timetable', path: `${prefix}/timetable` },
+      { icon: <FiTruck />, label: 'Transport', path: `${prefix}/transport` },
+      { icon: <FiDollarSign />, label: 'Expenses', path: `${prefix}/expenses` },
+      { icon: <FiBell />, label: 'Notices', path: `${prefix}/notices` },
+      { icon: <FiMessageCircle />, label: 'Messages', path: `${prefix}/messages` },
+      { icon: <FiSettings />, label: 'Settings', path: `${prefix}/settings` },
+    ],
+    teacher: [
+      { icon: <FiGrid />, label: 'Dashboard', path: `${prefix}/dashboard` },
+      { icon: <FiUsers />, label: 'My Classes', path: `${prefix}/my-classes` },
+      { icon: <FiClock />, label: 'Student Attendance', path: `${prefix}/attendance` },
+      { icon: <FiCheckSquare />, label: 'Mark Todays attendance', path: `${prefix}/mark-attendance` },
+      { icon: <FiClipboard />, label: 'Marks Entry', path: `${prefix}/marks` },
+      { icon: <FiBook />, label: 'Homework', path: `${prefix}/homework` },
+      { icon: <FiCalendar />, label: 'Timetable', path: `${prefix}/timetable` },
+      { icon: <FiBell />, label: 'Notices', path: `${prefix}/notices` },
+      { icon: <FiMessageCircle />, label: 'Messages', path: `${prefix}/messages` },
+      { icon: <FiSettings />, label: 'Profile', path: `${prefix}/settings` },
+    ],
+    student: [
+      { icon: <FiGrid />, label: 'Dashboard', path: `${prefix}/dashboard` },
+      { icon: <FiUser />, label: 'My Personal Details', path: `${prefix}/profile` },
+      { icon: <FiClock />, label: 'My Attendance History', path: `${prefix}/attendance` },
+      { icon: <FiAward />, label: 'My Results', path: `${prefix}/results` },
+      { icon: <FiBook />, label: 'Homework', path: `${prefix}/homework` },
+      { icon: <FiCalendar />, label: 'Timetable', path: `${prefix}/timetable` },
+      { icon: <FiDollarSign />, label: 'Fee Details', path: `${prefix}/fees` },
+      { icon: <FiBell />, label: 'Notices', path: `${prefix}/notices` },
+      { icon: <FiMessageCircle />, label: 'Messages', path: `${prefix}/messages` },
+      { icon: <FiSettings />, label: 'Profile', path: `${prefix}/settings` },
+    ],
+  }
+
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const navItems = NAV_ITEMS[user?.role] || []
 
   const handleLogout = () => {
     logout()
+<<<<<<< HEAD
     navigate('/erp')
+=======
+    navigate(prefix)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   }
 
   const roleColors = {
@@ -76,6 +133,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="dash-layout">
+<<<<<<< HEAD
       {/* Sidebar */}
       <aside className={`dash-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="dash-sidebar-header">
@@ -83,6 +141,16 @@ export default function DashboardLayout({ children }) {
             <div className="dash-logo-icon">NMS</div>
             <div className="dash-logo-text">
               <span className="dash-logo-name">NMS School</span>
+=======
+      <aside className={`dash-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <div className="dash-sidebar-header">
+          <Link to={prefix} className="dash-logo">
+            <div className="dash-logo-icon" style={{ background: school.logoColor, overflow: 'hidden' }}>
+              {school.logo ? <img src={school.logo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="logo" /> : school.logoText}
+            </div>
+            <div className="dash-logo-text">
+              <span className="dash-logo-name">{school.shortName} ERP</span>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
               <span className="dash-logo-role">{user?.role?.toUpperCase()} PANEL</span>
             </div>
           </Link>
@@ -126,12 +194,18 @@ export default function DashboardLayout({ children }) {
         </div>
       </aside>
 
+<<<<<<< HEAD
       {/* Overlay */}
       {sidebarOpen && <div className="dash-overlay" onClick={() => setSidebarOpen(false)} />}
 
       {/* Main Content */}
       <div className="dash-main">
         {/* Top Bar */}
+=======
+      {sidebarOpen && <div className="dash-overlay" onClick={() => setSidebarOpen(false)} />}
+
+      <div className="dash-main">
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
         <header className="dash-topbar">
           <div className="dash-topbar-left">
             <button className="dash-menu-btn" onClick={() => setSidebarOpen(true)}>
@@ -173,12 +247,18 @@ export default function DashboardLayout({ children }) {
                     </span>
                   </div>
                   <div className="dash-profile-actions">
+<<<<<<< HEAD
                     <Link to="/erp/settings" onClick={() => setProfileOpen(false)}>
                       <FiSettings /> Settings
                     </Link>
                     <Link to="/" onClick={() => setProfileOpen(false)}>
                       <FiHome /> Go to Website
                     </Link>
+=======
+                    <Link to={`${prefix}/settings`} onClick={() => setProfileOpen(false)}>
+                      <FiSettings /> Settings
+                    </Link>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                     <button onClick={handleLogout}>
                       <FiLogOut /> Logout
                     </button>
@@ -189,7 +269,10 @@ export default function DashboardLayout({ children }) {
           </div>
         </header>
 
+<<<<<<< HEAD
         {/* Page Content */}
+=======
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
         <div className="dash-content">
           {children}
         </div>

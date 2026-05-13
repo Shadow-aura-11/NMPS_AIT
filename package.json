@@ -1,5 +1,9 @@
 {
   "name": "nms-school-website",
+<<<<<<< HEAD
+=======
+  "homepage": "https://Shadow-aura-11.github.io/Skolux/",
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   "private": true,
   "version": "1.0.0",
   "type": "module",

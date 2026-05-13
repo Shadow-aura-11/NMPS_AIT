@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react'
+<<<<<<< HEAD
+=======
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 import { useAuth, MOCK_DATA } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import { FiTruck, FiMapPin, FiUser, FiInfo, FiPlus, FiEdit2, FiTrash2, FiSave, FiX, FiDownload, FiRefreshCw } from 'react-icons/fi'
@@ -6,6 +10,10 @@ import { exportToCSV } from '../../utils/exportUtils'
 
 export default function TransportPage() {
   const { user, currentSession } = useAuth()
+<<<<<<< HEAD
+=======
+  const { schoolId } = useParams()
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const { 
     fleetLogs = [], updateFleetLogs, 
     transportRoutes: routes = [], updateTransportRoutes, 
@@ -187,8 +195,13 @@ export default function TransportPage() {
               className="btn btn-secondary btn-sm" 
               onClick={() => {
                 if (!window.confirm(`Sync student-to-route assignments for the CURRENT session (${currentSession})?`)) return
+<<<<<<< HEAD
                 const stuKey = `nms_students_${currentSession}`
                 const students = JSON.parse(localStorage.getItem(stuKey) || localStorage.getItem('nms_students') || '[]')
+=======
+                const stuKey = `erp_${schoolId}_students_${currentSession}`
+                const students = JSON.parse(localStorage.getItem(stuKey) || localStorage.getItem(`erp_${schoolId}_students`) || '[]')
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                 const routeNames = routes.map(r => r.route)
                 students.forEach(s => {
                   if (s.transportRoute !== 'None' && !routeNames.includes(s.transportRoute)) s.transportRoute = 'None'

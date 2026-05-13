@@ -5,12 +5,20 @@ import { FiBook, FiPlus, FiCheckCircle, FiAlertCircle, FiClock, FiFileText, FiSa
 
 export default function HomeworkPage() {
   const { user, currentSession } = useAuth()
+<<<<<<< HEAD
   const { homework, updateHomework, globalClasses = [] } = useData()
+=======
+  const { homework, updateHomework, classes: erpClasses = [] } = useData()
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   
   const [modal, setModal] = useState(false)
   const [newHw, setNewHw] = useState({ title: '', subject: 'Mathematics', class: '10th-A', due: '', desc: '' })
   
+<<<<<<< HEAD
   const allAvailableClasses = globalClasses.map(c => c.class)
+=======
+  const allAvailableClasses = erpClasses.length > 0 ? erpClasses.map(c => c.class) : ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const allSubjects = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Hindi', 'Social Sc.', 'Computer', 'Sanskrit', 'Drawing']
   const isTeacher = user?.role === 'teacher'
   const isAdmin = user?.role === 'admin'
@@ -93,9 +101,17 @@ export default function HomeworkPage() {
             <div className="form-group">
               <label className="form-label">Target Class & Section</label>
               <select className="form-select" value={newHw.class} onChange={e => setNewHw({ ...newHw, class: e.target.value })}>
+<<<<<<< HEAD
                 {allAvailableClasses.map(c => (
                   <optgroup key={c} label={`Class ${c}`}>
                     {['A', 'B', 'C', 'D'].map(s => <option key={`${c}-${s}`} value={`${c}-${s}`}>{c}-{s}</option>)}
+=======
+                {erpClasses.map(c => (
+                  <optgroup key={c.class} label={`Class ${c.class}`}>
+                    {c.sections.map(s => (
+                      <option key={`${c.class}-${s.name}`} value={`${c.class}-${s.name}`}>{c.class}-{s.name}</option>
+                    ))}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                   </optgroup>
                 ))}
               </select>

@@ -12,7 +12,10 @@ import './ERP.css'
 const ROLE_INFO = {
   admin: { icon: <FiShield />, color: '#4f46e5', bg: '#eef2ff', label: 'Administrator', hint: 'admin / admin123' },
   teacher: { icon: <FiUser />, color: '#10b981', bg: '#ecfdf5', label: 'Teacher', hint: 'teacher / teacher123' },
+<<<<<<< HEAD
   student: { icon: <FiBookOpen />, color: '#f59e0b', bg: '#fffbeb', label: 'Student', hint: 'student / student123' },
+=======
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 }
 
 export default function ERPLogin() {
@@ -21,18 +24,28 @@ export default function ERPLogin() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+<<<<<<< HEAD
   const { login, error, setError, user } = useAuth()
+=======
+  const { login, error, setError, user, school } = useAuth()
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const navigate = useNavigate()
 
   // if already logged in, redirect to dashboard
   useEffect(() => {
+<<<<<<< HEAD
     if (user) navigate('/erp/dashboard')
   }, [user, navigate])
+=======
+    if (user) navigate(`/${school.key}/erp/dashboard`)
+  }, [user, navigate, school.key])
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     // simulate small delay for realism
+<<<<<<< HEAD
     try {
       const success = await login(username, password)
       setLoading(false)
@@ -41,6 +54,13 @@ export default function ERPLogin() {
       setLoading(false)
       setError('An error occurred during login.')
     }
+=======
+    setTimeout(() => {
+      const success = login(username, password)
+      setLoading(false)
+      if (success) navigate(`/${school.key}/erp/dashboard`)
+    }, 600)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   }
 
   const fillCredentials = (role) => {
@@ -55,27 +75,50 @@ export default function ERPLogin() {
   return (
     <>
       <Helmet>
+<<<<<<< HEAD
         <title>ERP Login - New Morning Star Public School</title>
         <meta name="description" content="Login to the school ERP portal. Access for Admin, Teacher, and Student." />
+=======
+        <title>{school.name} - ERP Login</title>
+        <meta name="description" content={`Login to the ${school.name} ERP portal.`} />
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
       </Helmet>
 
       <div className="erp-login-page">
         {/* Left Panel */}
+<<<<<<< HEAD
         <div className="erp-login-left">
           <div className="erp-login-left-content">
             <div className="erp-login-brand">
               <div className="dash-logo-icon" style={{ width: 56, height: 56, fontSize: '18px' }}>NMS</div>
               <div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 700 }}>New Morning Star</div>
+=======
+        <div className="erp-login-left" style={{ background: `linear-gradient(135deg, ${school.themeColor}, ${school.themeColor}dd)` }}>
+          <div className="erp-login-left-content">
+            <div className="erp-login-brand">
+              <div className="dash-logo-icon" style={{ width: 56, height: 56, fontSize: '18px', background: 'white', color: school.themeColor, overflow: 'hidden' }}>
+                {school.logo ? <img src={school.logo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="logo" /> : school.logoText}
+              </div>
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 700 }}>{school.name}</div>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                 <div style={{ fontSize: 'var(--text-sm)', opacity: 0.7 }}>School ERP Portal</div>
               </div>
             </div>
 
             <h1 className="erp-login-heading">
+<<<<<<< HEAD
               Complete School<br />Management System
             </h1>
             <p className="erp-login-subtext">
               Access attendance, fees, exams, timetable, homework, and more through our integrated digital platform.
+=======
+              {school.welcomeMessage}<br />Management System
+            </h1>
+            <p className="erp-login-subtext">
+              Access attendance, fees, exams, timetable, homework, and more through our integrated digital platform for {school.shortName}.
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
             </p>
 
             <div className="erp-login-features">
@@ -93,10 +136,17 @@ export default function ERPLogin() {
               ))}
             </div>
 
+<<<<<<< HEAD
             <div style={{marginTop: 40, padding: 25, background: 'rgba(255,255,255,0.1)', borderRadius: 20, backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)'}}>
               <div style={{fontSize: 14, fontWeight: 800, marginBottom: 10}}>System Security Note:</div>
               <div style={{fontSize: 13, opacity: 0.8, lineHeight: 1.6}}>
                 This is a secure academic portal. All login attempts are logged for security auditing. 
+=======
+            <div style={{ marginTop: 40, padding: 25, background: 'rgba(255,255,255,0.1)', borderRadius: 20, backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 10 }}>System Security Note:</div>
+              <div style={{ fontSize: 13, opacity: 0.8, lineHeight: 1.6 }}>
+                This is a secure academic portal. All login attempts are logged for security auditing.
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                 Please contact the IT administrator if you encounter any issues accessing your account.
               </div>
             </div>
@@ -156,7 +206,11 @@ export default function ERPLogin() {
                     />
                   </div>
                 </div>
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                 <div className="form-group">
                   <label className="form-label">Password</label>
                   <div className="erp-input-wrapper">
@@ -175,7 +229,11 @@ export default function ERPLogin() {
                     </button>
                   </div>
                 </div>
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                 <div style={{ display: 'flex', justifyContent: 'right', alignItems: 'center', marginBottom: 'var(--space-5)' }}>
                   <a href="#" style={{ fontSize: 'var(--text-sm)', color: info.color, fontWeight: 600 }}>
                     Forgot Password?
@@ -197,7 +255,11 @@ export default function ERPLogin() {
               </form>
 
               <div style={{ textAlign: 'center', marginTop: 20, fontSize: 12, color: 'var(--gray-400)' }}>
+<<<<<<< HEAD
                 © 2026 New Morning Star Public School. All rights reserved.
+=======
+                © 2026 Skolux Digital Systems. All rights reserved.
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
               </div>
             </div>
           </motion.div>

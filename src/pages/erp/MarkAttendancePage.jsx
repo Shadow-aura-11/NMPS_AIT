@@ -8,12 +8,22 @@ export default function MarkAttendancePage() {
   const [selectedClass, setSelectedClass] = useState('')
   const [selectedSection, setSelectedSection] = useState('A')
   
+<<<<<<< HEAD
   const { students, attendance, updateAttendance, globalClasses = [] } = useData()
+=======
+  const { students, attendance, updateAttendance, classes: erpClasses = [] } = useData()
+  const currentClassObj = erpClasses.find(c => c.class === selectedClass)
+  const sectionList = currentClassObj?.sections?.map(s => s.name) || ['A', 'B', 'C', 'D']
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
   const [localAttendance, setLocalAttendance] = useState({}) // { studentId: 'Present' | 'Absent' | 'Late' }
   const [savedStatus, setSavedStatus] = useState(false)
 
+<<<<<<< HEAD
   const classes = globalClasses.map(c => c.class)
+=======
+  const classes = erpClasses.length > 0 ? erpClasses.map(c => c.class) : ['UKG', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   
   const formatDate = (date) => {
     const year = date.getFullYear()
@@ -90,7 +100,11 @@ export default function MarkAttendancePage() {
         <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
           <label className="form-label">Select Section</label>
           <select className="form-select" value={selectedSection} onChange={e => setSelectedSection(e.target.value)}>
+<<<<<<< HEAD
             {['A', 'B', 'C', 'D'].map(s => <option key={s} value={s}>Section {s}</option>)}
+=======
+            {sectionList.map(s => <option key={s} value={s}>Section {s}</option>)}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
           </select>
         </div>
         <div style={{ padding: '10px 20px', background: 'var(--gray-50)', borderRadius: 12, fontSize: 13, fontWeight: 700, color: 'var(--gray-500)' }}>

@@ -1,17 +1,33 @@
 import { useState } from 'react'
+<<<<<<< HEAD
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import { exportToCSV } from '../../utils/exportUtils'
 import { FiUser, FiSearch, FiPlus, FiEdit2, FiTrash2, FiX, FiSave, FiPhone, FiMail, FiFileText, FiUpload, FiTrash, FiPrinter, FiShield, FiDownload } from 'react-icons/fi'
+=======
+import { useAuth } from '../../context/AuthContext'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useData } from '../../context/DataContext'
+import { exportToCSV } from '../../utils/exportUtils'
+import { FiUser, FiSearch, FiPlus, FiEdit2, FiTrash2, FiX, FiSave, FiPhone, FiMail, FiFileText, FiUpload, FiTrash, FiPrinter, FiShield, FiDownload, FiImage } from 'react-icons/fi'
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
 export default function StaffPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
+<<<<<<< HEAD
+=======
+  const { schoolId } = useParams()
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const { staff, updateStaff } = useData()
   const [search, setSearch] = useState('')
   const [modal, setModal] = useState(null)
   const [printStaff, setPrintStaff] = useState(null)
+<<<<<<< HEAD
+=======
+  const [brandingModal, setBrandingModal] = useState(false)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
   const [docName, setDocName] = useState('')
   
   const [editData, setEditData] = useState({
@@ -19,11 +35,21 @@ export default function StaffPage() {
     dob: '', bloodGroup: '', address: '', aadhaarNo: '', panNo: '', joinDate: '',
     photo: null,
     documents: [],
+<<<<<<< HEAD
     loginUsername: '', loginPassword: ''
   })
 
   const [customDesignation, setCustomDesignation] = useState(false)
   const idConfig = JSON.parse(localStorage.getItem('nms_id_config') || '{"schoolName":"NEW MORNING STAR PUBLIC SCHOOL","themeColor":"#4f46e5","textColor":"#ffffff","showQr":true,"showSign":true,"cardType":"vertical","borderRadius":12,"headerHeight":60}')
+=======
+    username: '',
+    password: ''
+  })
+
+  const [customDesignation, setCustomDesignation] = useState(false)
+  const [certConfig, setCertConfig] = useState(() => JSON.parse(localStorage.getItem(`erp_${schoolId}_cert_config`) || '{"schoolName":"NEW MORNING STAR PUBLIC SCHOOL", "logoImage": null}'))
+  const idConfig = JSON.parse(localStorage.getItem(`erp_${schoolId}_id_config`) || '{"schoolName":"NEW MORNING STAR PUBLIC SCHOOL","themeColor":"#4f46e5","textColor":"#ffffff","showQr":true,"showSign":true,"cardType":"vertical","borderRadius":12,"headerHeight":60}')
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
 
   const filtered = staff.filter(s => 
     s.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -32,6 +58,7 @@ export default function StaffPage() {
   )
 
   const openAdd = () => { 
+<<<<<<< HEAD
     const nextId = `STF${String(staff.length+1).padStart(3,'0')}`;
     setEditData({
       id: nextId, name:'', dept:'', designation:'Teacher', status:'Present', phone:'',
@@ -39,14 +66,24 @@ export default function StaffPage() {
       photo: null, documents: [],
       loginUsername: `staff${staff.length+1}`,
       loginPassword: Math.random().toString(36).slice(-8)
+=======
+    setEditData({
+      id:`STF${String(staff.length+1).padStart(3,'0')}`, name:'', dept:'', designation:'Teacher', status:'Present', phone:'',
+      dob: '', bloodGroup: '', address: '', aadhaarNo: '', panNo: '', joinDate: new Date().toISOString().split('T')[0],
+      photo: null, documents: [],
+      username: '', password: ''
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     }); 
     setCustomDesignation(false)
     setModal('add') 
   }
 
   const openEdit = s => { 
+<<<<<<< HEAD
     const dynamicUsers = JSON.parse(localStorage.getItem('nms_dynamic_users') || '[]')
     const userCred = dynamicUsers.find(u => u.id === s.id)
+=======
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     setEditData({
       ...s,
       documents: s.documents || [],
@@ -57,8 +94,13 @@ export default function StaffPage() {
       aadhaarNo: s.aadhaarNo || '',
       panNo: s.panNo || '',
       joinDate: s.joinDate || '',
+<<<<<<< HEAD
       loginUsername: userCred ? userCred.username : '',
       loginPassword: userCred ? userCred.password : ''
+=======
+      username: s.username || '',
+      password: s.password || ''
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     }); 
     setCustomDesignation(false)
     setModal('edit') 
@@ -66,6 +108,7 @@ export default function StaffPage() {
 
   const handleSave = () => {
     if(!editData.name.trim()) return
+<<<<<<< HEAD
     const { loginUsername, loginPassword, ...staffData } = editData;
     const dynamicUsers = JSON.parse(localStorage.getItem('nms_dynamic_users') || '[]')
     
@@ -88,6 +131,10 @@ export default function StaffPage() {
     }
     localStorage.setItem('nms_dynamic_users', JSON.stringify(dynamicUsers))
 
+=======
+    const updated = modal === 'add' ? [...staff, editData] : staff.map(s => s.id === editData.id ? editData : s)
+    updateStaff(updated)
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
     setModal(null)
   }
 
@@ -141,9 +188,20 @@ export default function StaffPage() {
           <div className="dash-page-subtitle">{staff.length} staff members | {staff.filter(s=>s.status==='Present').length} present today</div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
+<<<<<<< HEAD
           {user?.role==='admin' && <button className="btn btn-secondary" onClick={handleExport}><FiDownload /> Export CSV</button>}
           {user?.role==='admin' && <button className="btn btn-secondary" onClick={() => navigate('/erp/id-card-design')}><FiShield /> Design ID Cards</button>}
           {user?.role==='admin' && <button className="btn btn-primary" onClick={openAdd}><FiPlus/> Add Staff</button>}
+=======
+          {user?.role==='admin' && (
+            <>
+              <button className="btn btn-secondary" onClick={() => setBrandingModal(true)}><FiImage /> Branding</button>
+              <button className="btn btn-secondary" onClick={handleExport}><FiDownload /> Export CSV</button>
+              <button className="btn btn-secondary" onClick={() => navigate(`/${schoolId}/erp/id-card-design`)}><FiShield /> Design ID Cards</button>
+              <button className="btn btn-primary" onClick={openAdd}><FiPlus/> Add Staff</button>
+            </>
+          )}
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
         </div>
       </div>
 
@@ -210,10 +268,18 @@ export default function StaffPage() {
               margin:'0 auto', border:`4px solid ${idConfig.themeColor}`, borderRadius:idConfig.borderRadius, overflow:'hidden', background:'white', position:'relative', textAlign:'center',
               display: 'flex', flexDirection: 'column'
             }}>
+<<<<<<< HEAD
                <div style={{background:idConfig.themeColor, color:'white', padding:15}}>
                  <div style={{fontSize:14, fontWeight:900}}>{idConfig.schoolName}</div>
                  <div style={{fontSize:8}}>STAFF IDENTITY CARD</div>
                </div>
+=======
+                <div style={{background:idConfig.themeColor, color:'white', padding:15}}>
+                  {certConfig.logoImage && <img src={certConfig.logoImage} style={{ height: 30, marginBottom: 5, display: 'block', margin: '0 auto' }} />}
+                  <div style={{fontSize:14, fontWeight:900}}>{certConfig.schoolName || idConfig.schoolName}</div>
+                  <div style={{fontSize:8}}>STAFF IDENTITY CARD</div>
+                </div>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
                <div style={{padding:20, display:'flex', flexDirection: idConfig.cardType === 'vertical' ? 'column' : 'row', alignItems:'center', gap:20, flex:1}}>
                  <div style={{width:110, height:130, margin: idConfig.cardType === 'vertical' ? '0 auto' : '0', borderRadius:8, border:`3px solid ${idConfig.themeColor}`, overflow:'hidden', background:'var(--gray-50)', flexShrink:0}}>
                    {printStaff.photo ? <img src={printStaff.photo} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : <FiUser size={40} style={{marginTop:35}} />}
@@ -238,7 +304,99 @@ export default function StaffPage() {
                   )}
                </div>
                <div style={{height:8, background:idConfig.themeColor}}></div>
+<<<<<<< HEAD
             </div>
+=======
+             </div>
+             {user?.role === 'admin' && (
+               <div style={{ marginTop: 25, padding: 20, background: 'var(--primary-50)', borderRadius: 12, border: '1px solid var(--primary-200)' }} className="no-print">
+                 <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--primary-700)', marginBottom: 12, textTransform: 'uppercase' }}>Update Global School Branding</div>
+                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                   <div className="form-group" style={{ marginBottom: 0 }}>
+                     <label className="form-label" style={{ fontSize: 10 }}>School Name</label>
+                     <input className="form-input" style={{ height: 32, fontSize: 12 }} value={certConfig.schoolName} onChange={e => setCertConfig({ ...certConfig, schoolName: e.target.value })} />
+                   </div>
+                   <div className="form-group" style={{ marginBottom: 0 }}>
+                     <label className="form-label" style={{ fontSize: 10 }}>Update School Logo</label>
+                     <input type="file" className="form-input" style={{ height: 32, fontSize: 10, padding: '4px 8px' }} accept="image/*" 
+                       onChange={e => {
+                         const file = e.target.files[0]
+                         if (file) {
+                           const reader = new FileReader()
+                           reader.onloadend = () => setCertConfig({ ...certConfig, logoImage: reader.result })
+                           reader.readAsDataURL(file)
+                         }
+                       }} 
+                     />
+                   </div>
+                 </div>
+                 <button className="btn btn-primary btn-sm" style={{ width: '100%', marginTop: 5 }} 
+                   onClick={() => {
+                     localStorage.setItem(`erp_${schoolId}_cert_config`, JSON.stringify(certConfig))
+                     alert('Global Branding Updated!')
+                   }}>
+                   <FiSave /> Save to All Documents
+                 </button>
+               </div>
+             )}
+          </div>
+        </div>
+      )}
+
+      {/* Global Branding Modal */}
+      {brandingModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }} onClick={() => setBrandingModal(false)}>
+          <div style={{ background: 'white', borderRadius: 20, padding: 32, maxWidth: 500, width: '100%' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+              <h3 style={{ fontWeight: 700, fontSize: 18 }}>Global School Branding</h3>
+              <button type="button" onClick={() => setBrandingModal(false)}><FiX /></button>
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">School Name</label>
+              <input className="form-input" value={certConfig.schoolName} onChange={e => setCertConfig({ ...certConfig, schoolName: e.target.value })} />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">School Logo</label>
+              <input type="file" className="form-input" accept="image/*" 
+                onChange={e => {
+                  const file = e.target.files[0]
+                  if (file) {
+                    const reader = new FileReader()
+                    reader.onloadend = () => setCertConfig({ ...certConfig, logoImage: reader.result })
+                    reader.readAsDataURL(file)
+                  }
+                }} 
+              />
+              {certConfig.logoImage && <img src={certConfig.logoImage} style={{ height: 60, marginTop: 10, borderRadius: 4 }} alt="Logo Preview" />}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Address</label>
+              <textarea className="form-input" style={{ height: 60 }} value={certConfig.address} onChange={e => setCertConfig({ ...certConfig, address: e.target.value })} />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 15 }}>
+              <div className="form-group">
+                <label className="form-label">Phone</label>
+                <input className="form-input" value={certConfig.phone} onChange={e => setCertConfig({ ...certConfig, phone: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Email</label>
+                <input className="form-input" value={certConfig.email} onChange={e => setCertConfig({ ...certConfig, email: e.target.value })} />
+              </div>
+            </div>
+
+            <button className="btn btn-primary w-full" style={{ marginTop: 10 }}
+              onClick={() => {
+                localStorage.setItem(`erp_${schoolId}_cert_config`, JSON.stringify(certConfig))
+                setBrandingModal(false)
+                alert('Branding updated successfully!')
+              }}>
+              <FiSave /> Save Global Branding
+            </button>
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
           </div>
         </div>
       )}
@@ -284,6 +442,7 @@ export default function StaffPage() {
               </div>
             </div>
 
+<<<<<<< HEAD
             {/* Portal Credentials */}
             <h4 style={{fontSize:13, fontWeight:800, color:'var(--primary-700)', marginBottom:10}}>Portal Login Credentials</h4>
             <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom: 25, padding: 15, background: 'var(--primary-50)', borderRadius: 12, border: '1px solid var(--primary-100)'}}>
@@ -292,12 +451,34 @@ export default function StaffPage() {
             </div>
 
             <h4 style={{fontSize:13, fontWeight:800, color:'var(--gray-700)', marginBottom:10}}>Personal Information</h4>
+=======
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
             <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:16}}>
               <div className="form-group"><label className="form-label">Aadhaar Number</label><input className="form-input" value={editData.aadhaarNo} onChange={e=>setEditData({...editData,aadhaarNo:e.target.value})}/></div>
               <div className="form-group"><label className="form-label">PAN Number</label><input className="form-input" value={editData.panNo} onChange={e=>setEditData({...editData,panNo:e.target.value})}/></div>
               <div className="form-group"><label className="form-label">Date of Joining</label><input className="form-input" type="date" value={editData.joinDate} onChange={e=>setEditData({...editData,joinDate:e.target.value})}/></div>
             </div>
 
+<<<<<<< HEAD
+=======
+            <div style={{marginTop:30, padding:20, background:'var(--primary-50)', borderRadius:16, border:'1px solid var(--primary-100)'}}>
+              <h4 style={{fontSize:13, fontWeight:800, color:'var(--primary-700)', marginBottom:15, display:'flex', alignItems:'center', gap:8}}><FiShield /> Teacher Portal Credentials</h4>
+              <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:16}}>
+                <div className="form-group">
+                  <label className="form-label" style={{ color: 'var(--primary-600)' }}>Login Username</label>
+                  <input className="form-input" style={{ borderColor: 'var(--primary-200)' }} value={editData.username} onChange={e=>setEditData({...editData,username:e.target.value})} placeholder="Set portal username"/>
+                </div>
+                <div className="form-group">
+                  <label className="form-label" style={{ color: 'var(--primary-600)' }}>Login Password</label>
+                  <input className="form-input" style={{ borderColor: 'var(--primary-200)' }} type="text" value={editData.password} onChange={e=>setEditData({...editData,password:e.target.value})} placeholder="Set portal password"/>
+                </div>
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--primary-500)', marginTop: 8, fontWeight: 600 }}>
+                💡 Tip: Use a unique username and strong password. Staff can use these to log into their specific teacher dashboard.
+              </div>
+            </div>
+
+>>>>>>> a27f03adb5bc002110adda8f20d649269140288b
             <div style={{marginTop:30, padding:20, background:'var(--gray-50)', borderRadius:16}}>
               <h4 style={{fontSize:13, fontWeight:800, color:'var(--gray-700)', marginBottom:15, display:'flex', alignItems:'center', gap:8}}><FiFileText /> Staff Documents & Files</h4>
               <div style={{display:'flex', gap:12, marginBottom:20}}>
