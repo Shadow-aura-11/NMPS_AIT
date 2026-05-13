@@ -156,8 +156,27 @@ export function AuthProvider({ children }) {
     }
   }, [currentSession])
 
-  const login = (username, password) => {
+  const login = async (username, password) => {
     setError('')
+    
+    try {
+      // Try backend first
+      const response = await fetch('http://localhost:5000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+        return true;
+      }
+    } catch (apiError) {
+      console.log("Backend not reached, falling back to local auth", apiError);
+    }
+
+    // Fallback to local mock users (for offline/dev)
     const dynamicUsers = JSON.parse(localStorage.getItem('nms_dynamic_users') || '[]')
     const allUsers = [...USERS, ...dynamicUsers]
     

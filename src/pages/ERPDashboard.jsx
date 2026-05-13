@@ -33,11 +33,14 @@ export default function ERPLogin() {
     e.preventDefault()
     setLoading(true)
     // simulate small delay for realism
-    setTimeout(() => {
-      const success = login(username, password)
+    try {
+      const success = await login(username, password)
       setLoading(false)
       if (success) navigate('/erp/dashboard')
-    }, 600)
+    } catch (err) {
+      setLoading(false)
+      setError('An error occurred during login.')
+    }
   }
 
   const fillCredentials = (role) => {
