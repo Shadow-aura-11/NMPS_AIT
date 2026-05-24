@@ -15,10 +15,6 @@ npm run dev
 
 ---
 
-## 🔐 Admin Access
-- **ERP Admin**: `admin` / `admin123`
-- **Web CMS Admin**: `webadmin123` (Password only)
-
 ## ✨ Features
 - **Modern SPA**: Fast, responsive, and secure React-based architecture.
 - **Global Academic Session**: Switch school years globally from the admin settings.
